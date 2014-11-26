@@ -9,7 +9,7 @@ glob.assert = function(test, msg) {
 };
 
 // Base class constructor //////////////////////////////////////////////////////
-glob.NewGlob = function(staticModules, modules) {
+glob.NewGlobType = function(staticModules, modules) {
   var iMod = 0,
       statModArray = glob.util.makeArray(staticModules),
       modArray = glob.util.makeArray(modules);
@@ -19,17 +19,17 @@ glob.NewGlob = function(staticModules, modules) {
   };
 
   _class.prototype = {};
-  _class.prototype.extend = glob.NewGlob.extend;
+  _class.prototype.extend = glob.NewGlobType.extend;
   _class.prototype.modArray = [];
 
   // Add static functions (attach static functions to _class object).
   for (iMod=0; statModArray && iMod<statModArray.length; ++iMod) {
-    glob.NewGlob.extendStatic.call(_class, statModArray[iMod]);
+    glob.NewGlobType.extendStatic.call(_class, statModArray[iMod]);
   }
 
   // Add instance methods (copy module objects into prototype).
   for (iMod=0; modArray && iMod<modArray.length; ++iMod) {
-    glob.NewGlob.extend.call(_class, modArray[iMod]);
+    glob.NewGlobType.extend.call(_class, modArray[iMod]);
   }
 
   // Provide overall init function (calls 'init' on all modules).
@@ -54,18 +54,18 @@ glob.NewGlob = function(staticModules, modules) {
   };
 
   _class.extendStatic = function() {
-    glob.NewGlob.extendStatic.apply(_class, arguments);
+    glob.NewGlobType.extendStatic.apply(_class, arguments);
   }
 
   _class.extend = function(module) {
-    glob.NewGlob.extend.call(_class, module, _class.prototype);
+    glob.NewGlobType.extend.call(_class, module, _class.prototype);
   }
 
   return _class;
 };
 
 // Copy module functions into a prototype --------------------------------------
-glob.NewGlob.extendStatic = function(module) {
+glob.NewGlobType.extendStatic = function(module) {
   var key = null;
 
   if (module) {
@@ -73,14 +73,13 @@ glob.NewGlob.extendStatic = function(module) {
       if (this[key]) {
         console.log("Overriding static member '" + key + "'!");
       }
-      else {
-        this[key] = module[key];
-      }
+
+      this[key] = module[key];
     }
   }
 };
 
-glob.NewGlob.extend = function(module, proto) {
+glob.NewGlobType.extend = function(module, proto) {
   var key = null;
 
   proto = proto || this.prototype;
@@ -92,11 +91,10 @@ glob.NewGlob.extend = function(module, proto) {
 
     for (key in module) {
       if (proto[key]) {
-        console.log("Overriding function '" + key + "'!");
+        console.log("Overriding member '" + key + "'!");
       }
-      else {
-        proto[key] = module[key];
-      }
+    
+      proto[key] = module[key];
     }
   }
 };
