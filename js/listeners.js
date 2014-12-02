@@ -22,27 +22,27 @@
 // });
 
 
-glob.Listeners = {
-  listeners: [],
+glob.Listeners = function() {
+  this.listeners = [];
   
-  addListener: function(theListener, fnCompare) {
+  this.addListener = function(theListener, fnCompare) {
     if (theListener) {
       this.listeners.push(theListener);
       if (fnCompare) {
         this.sortListeners(fnCompare);
       }
     }
-  },
+  };
   
-  removeListener: function(theListener) {
+  this.removeListener = function(theListener) {
     glob.util.fastErase(this.listeners, theListener);
-  },
+  };
  
-  removeAllListeners: function() {
+  this.removeAllListeners = function() {
     this.listeners.length = 0;
-  },
+  };
   
-  sortListeners: function(fnCompare) {
+  this.sortListeners = function(fnCompare) {
     var iInner = 0;
     var iOuter = 0;
     var minIndex = 0;
@@ -66,9 +66,9 @@ glob.Listeners = {
         }
       }
     }
-  },
+  };
   
-  callListeners: function(fnName) {
+  this.callListeners = function(fnName) {
     var iListener = 0;
     var args = Array.prototype.slice.call(arguments);
     
@@ -82,9 +82,9 @@ glob.Listeners = {
         }
       }
     }
-  },
+  };
   
-  callListenersUntilConsumed: function(fnName) {
+  this.callListenersUntilConsumed = function(fnName) {
     var iListener = 0;
     var args = Array.prototype.slice.call(arguments);
     var bConsumed = false;
@@ -105,5 +105,5 @@ glob.Listeners = {
     }
     
     return bConsumed;
-  }
+  };
 };

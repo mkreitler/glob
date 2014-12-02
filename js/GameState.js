@@ -45,162 +45,100 @@ glob.GameState.stateMachine = {
   mouseDrag: function(x, y) {
     var curState = this.getState();
 
-    return curState ? curState.mouseDrag(x, y) : false;
+    return curState && curState.mouseDrag ? curState.mouseDrag(x, y) : false;
   },
 
   mouseUp: function(x, y) {
     var curState = this.getState();
 
-    return curState ? curState.mouseUp(x, y) : false;
+    return curState && curState.mouseUp ? curState.mouseUp(x, y) : false;
   },
 
   mouseDown: function(x, y) {
     var curState = this.getState();
 
-    return curState ? curState.mouseDown(x, y) : false;
+    return curState && curState.mouseDown ? curState.mouseDown(x, y) : false;
   },
 
   mouseOver: function(x, y) {
     var curState = this.getState();
 
-    return curState ? curState.mouseOver(x, y) : false;
+    return curState && curState.mouseOver ? curState.mouseOver(x, y) : false;
   },
 
   mouseHold: function(x, y) {
     var curState = this.getState();
 
-    return curState ? curState.mouseHold(x, y) : false;
+    return curState && curState.mouuseHold ? curState.mouseHold(x, y) : false;
   },
 
   mouseClick: function(x, y) {
     var curState = this.getState();
 
-    return curState ? curState.mouseClick(x, y) : false;
+    return curState && curState.mouseClick ? curState.mouseClick(x, y) : false;
   },
 
   mouseDoubleClick: function(x, y) {
     var curState = this.getState();
 
-    return curState ? curState.mouseDoubleClick(x, y) : false;
+    return curState && curState.mouseDoubleClick ? curState.mouseDoubleClick(x, y) : false;
   },
 
   mouseOut: function( x, y) {
     var curState = this.getState();
 
-    return curState ? curState.mouseOut(x, y) : false;
+    return curState && curState.mouseOut ? curState.mouseOut(x, y) : false;
   },
 
   touchUp: function(touchID, x, y) {
     var curState = this.getState();
 
-    return curState ? curState.touchUp(touchID, x, y) : false;
+    return curState && curState.touchUp ? curState.touchUp(touchID, x, y) : false;
   },
 
   touchDown: function(touchID, x, y) {
     var curState = this.getState();
 
-    return curState ? curState.touchDown(touchID, x, y) : false
+    return curState && curState.touchDown ? curState.touchDown(touchID, x, y) : false
   },
 
   touchMove: function(touchID, x, y) {
     var curState = this.getState();
 
-    return curState ? curState.touchMove(touchID, x, y) : false;
+    return curState && curState.touchMove ? curState.touchMove(touchID, x, y) : false;
   },
 
   keyPress: function(keyCode) {
     var curState = this.getState();
 
-    return curState ? curState.keyPress(keyCode) : false;
+    return curState && curState.keyPress ? curState.keyPress(keyCode) : false;
   },
 
   keyRelease: function(keyCode) {
     var curState = this.getState();
 
-    return curState ? curState.keyRelease(keyCode) : false;
+    return curState && curState.keyRelease ? curState.keyRelease(keyCode) : false;
   },
 
   keyHold: function(keyCode) {
     var curState = this.getState();
 
-    return curState ? curState.keyHold(keyCode) : false;
+    return curState && curState.keyHold ? curState.keyHold(keyCode) : false;
   },
 
   keyTap: function(keyCode) {
     var curState = this.getState();
 
-    return curState ? curState.keyTap(keyCode) : false;
+    return curState && curState.keyTap ? curState.keyTap(keyCode) : false;
   },
 
   keyDoubleTap: function(keyCode) {
     var curState = this.getState();
 
-    return curState ? curState.keyDoubleTap(keyCode) : false;
-  }
-};
-
-glob.GameState.inputHandlers = {
-  mouseDrag: function(x, y) {
-    return true;
+    return curState && curState.keyDoubleTap ? curState.keyDoubleTap(keyCode) : false;
   },
 
-  mouseUp: function(x, y) {
-    return true;
-  },
-
-  mouseDown: function(x, y) {
-    return true;
-  },
-
-  mouseOver: function(x, y) {
-    return true;
-  },
-
-  mouseHold: function(x, y) {
-    return true;
-  },
-
-  mouseClick: function(x, y) {
-    return true;
-  },
-
-  mouseDoubleClick: function(x, y) {
-    return true;
-  },
-
-  mouseOut: function( x, y) {
-    return true;
-  },
-
-  touchUp: function(touchID, x, y) {
-    return true;
-  },
-
-  touchDown: function(touchID, x, y) {
-    return true;
-  },
-
-  touchMove: function(touchID, x, y) {
-    return true;
-  },
-
-  keyPress: function(keyCode) {
-    return true;
-  },
-
-  keyRelease: function(keyCode) {
-    return true;
-  },
-
-  keyHold: function(keyCode) {
-    return true;
-  },
-
-  keyTap: function(keyCode) {
-    return true;
-  },
-
-  keyDoubleTap: function(keyCode) {
-    return true;
+  accelChanged: function(x, y, z) {
+    return curState && curState.accelChanged ? curState.accelChanged(x, y, z) : false;
   }
 };

@@ -1,7 +1,7 @@
 // Singleton that captures acceleromete input for the game.
 //
 glob.Accelerometer = new glob.NewGlobType([
-glob.Listeners, {
+new glob.Listeners(), {
   // Static definitions /////////////////////////////////////////////////////
   accelChanged: function(e) {
     var x = e.acceleration.x;

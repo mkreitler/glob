@@ -13,7 +13,7 @@
 // glob.MouseInput.addListener(myInstance);</pre>
 
 glob.MouseInput = new glob.NewGlobType([
-glob.Listeners, {
+  new glob.Listeners(), {
   // Static definitions /////////////////////////////////////////////////////
   doubleTapInterval: 200,
   holdInterval: 333,

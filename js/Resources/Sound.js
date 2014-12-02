@@ -189,6 +189,8 @@ glob.Sound = new glob.NewGlobType({
     var iStart = typeof(channelIndex) === 'undefined' || channelIndex === glob.Sound.INVALID_CHANNEL ? 0 : channelIndex;
     var iEnd = typeof(channelIndex) === 'undefined' || channelIndex === glob.Sound.INVALID_CHANNEL ? sound.channels.length - 1 : channelIndex;
 
+    channelIndex = channelIndex || glob.Sound.STOP_ALL_CHANNELS;
+
     if (channelIndex === glob.Sound.STOP_ALL_CHANNELS) {
       iStart = 0;
       iEnd = sound.channels.length - 1;

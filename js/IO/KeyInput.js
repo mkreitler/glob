@@ -15,7 +15,7 @@
 
 
 glob.KeyInput = new glob.NewGlobType([
-  glob.Listeners, {
+  new glob.Listeners(), {
   // Static Definitions ////////////////////////////////////////////////////////////
   keyState: [],
   doubleTapInterval: 150,

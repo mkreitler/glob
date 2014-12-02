@@ -8,7 +8,7 @@
 //
 
 glob.Multitouch = new glob.NewGlobType([
-  glob.Listeners,
+  new glob.Listeners(),
   {
     pointInfo: {clientX:0, clientY:0, srcElement:null},
     

@@ -11,7 +11,7 @@
 // [END HELP]
 
 glob.UpdateLoop = new glob.NewGlobType([
-  glob.Listeners, {
+  new glob.Listeners(), {
 // Static Definition
   PRIORITY_INPUT: 1000,
   PRIORITY_PROCESS: 100,
@@ -87,3 +87,5 @@ glob.UpdateLoop = new glob.NewGlobType([
 {
 // No instance definitions -- UpdateLoop is a singleton.
 });
+
+glob.UpdateLoop.start();

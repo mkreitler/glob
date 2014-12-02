@@ -42,7 +42,7 @@ window.requestAnimFrame = (function() {
 });
 
 glob.GraphicsClass = new glob.NewGlobType(null, [
-  glob.Listeners,
+  new glob.Listeners(),
   {
     gameCanvas: null,
     activeContext: null,
@@ -285,7 +285,7 @@ glob.GraphicsClass = new glob.NewGlobType(null, [
       }
     },
 
-    showMessage: function(strMsg, gfx, color, bCentered) {
+    showMessage: function(gfx, strMsg, color, bCentered) {
       var canvas = this.getCanvas(),
           textX = 10,
           context = canvas && (gfx === null || typeof gfx === 'undefined') ? canvas.getContext("2d") : gfx;
@@ -323,5 +323,6 @@ if (typeof gameHeight === "undefined") {
 // gameWidth and gameHeight, if used, should be set in the first file loaded
 // into the browser.
 glob.Graphics = new glob.GraphicsClass(gameWidth, gameHeight);
+glob.Graphics.start();
 
 
