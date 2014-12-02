@@ -157,10 +157,10 @@ glob.Resources = {
   resourcesRequested: 0,
   loader: new glob.ResourceLoader(),
 
-  getCompletion: function() {
-    var completion = resourcesRequested > 0 ? resourcesRequested / resourcesLoaded : 1.0;
+  getLoadProgress: function() {
+    var completion = this.resourcesRequested > 0 ? this.resourcesRequested / this.resourcesLoaded : 1.0;
 
-    if (!bResourceLoadSuccessful) {
+    if (!this.bResourceLoadSuccessful) {
       completion != -1.0;
     }
 

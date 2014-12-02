@@ -238,6 +238,7 @@ glob.Sound = new glob.NewGlobType({
     var nNewChannels = 0;
     var i = 0;
     var newChannel = null;
+    var sentinel = null;
 
     if (glob.Sound.preferredFormat) {
       if (extension) {
@@ -261,10 +262,15 @@ glob.Sound = new glob.NewGlobType({
         nNewChannels = numChannels - glob.Sound.sounds[resourceName].channels.length;
         for (i=0; i<nNewChannels; ++i) {
           newChannel = new Audio(path);
+          sentinel = new function() { this.bFirstTime = true };
           
           if (onLoadedCallback) {
             newChannel.addEventListener('canplaythrough', function callback() {
-              onLoadedCallback(glob.Sound.sounds[resourceName], resourceName);
+              // HACKy "fix" for Chrome's 'canplaythrough' bug.
+              if (sentinel.bFirstTime) {
+                onLoadedCallback(glob.Sound.sounds[resourceName], resourceName);
+                sentinel.bFirstTime = false;
+              }
             }, false);
           }
           

@@ -39,7 +39,7 @@ game.TestGame = new glob.NewGlobType([
 
           update: function(dt) {
             this.nResLoaded = glob.Resources.getLoadedCount();
-            if (this.nResLoaded === 5) {
+            if (glob.Resources.getLoadProgress() > 1 - glob.math.EPSILON) {
               self.setState(self.playState);
             }
           },
@@ -47,7 +47,7 @@ game.TestGame = new glob.NewGlobType([
           draw: function(ctxt) {
             ctxt.fillStyle = "#000000";
             ctxt.fillRect(0, 0, width, height);
-            glob.Graphics.showMessage(ctxt, "Loaded " + this.nResLoaded + " of 5...", "#ff0000", true);
+            glob.Graphics.showMessage(ctxt, "Loaded " + this.nResLoaded + " of 3...", "#ff0000", true);
           }
         };
 
