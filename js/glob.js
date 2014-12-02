@@ -53,6 +53,16 @@ glob.NewGlobType = function(staticModules, modules) {
     }
   };
 
+  _class.prototype.draw = function(ctxt) {
+    var iMod = 0;
+
+    for (iMod=0; _class.prototype.modArray && iMod<_class.prototype.modArray.length; ++iMod) {
+      if (_class.prototype.modArray[iMod].draw) {
+        _class.prototype.modArray[iMod].draw.apply(this, arguments);
+      }
+    }
+  };
+
   _class.extendStatic = function() {
     glob.NewGlobType.extendStatic.apply(_class, arguments);
   }
@@ -80,7 +90,8 @@ glob.NewGlobType.extendStatic = function(module) {
 };
 
 glob.NewGlobType.extend = function(module, proto) {
-  var key = null;
+  var key = null,
+      upperKey = null;
 
   proto = proto || this.prototype;
 
@@ -91,7 +102,13 @@ glob.NewGlobType.extend = function(module, proto) {
 
     for (key in module) {
       if (proto[key]) {
-        console.log("Overriding member '" + key + "'!");
+        upperKey = key.toUpperCase();
+
+        if (upperKey != "DRAW" &&
+            upperKey != "INIT" &&
+            upperKey != "UPDATE") {
+          console.log("Overriding member '" + key + "'!");
+        }
       }
     
       proto[key] = module[key];

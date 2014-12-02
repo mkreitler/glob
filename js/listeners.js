@@ -5,12 +5,12 @@
 // addListener(listener, fnCompare)
 // removeListener(listener)
 // removeAllListeners()
-// sortListeners(fnCompare)
+// sortListeners(fnCompare  )
 // callListeners(fnName, ...)
 // callListenersUntilConsumed(fnName, ...)
 //
 // Usage:
-// var myClass = new glob.ClassEx(..., [Listeners, ...]);
+// var myClass = new glob.NewGlobType(..., [Listeners, ...]);
 //
 // var myObj = new myClass();
 //
@@ -35,7 +35,7 @@ glob.Listeners = {
   },
   
   removeListener: function(theListener) {
-    glob.Utility.fastErase(this.listeners, theListener);
+    glob.util.fastErase(this.listeners, theListener);
   },
  
   removeAllListeners: function() {
