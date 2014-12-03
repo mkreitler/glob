@@ -7,7 +7,7 @@ glob.GameState.stateMachine = {
   setState: function(newState) {
     if (this.currentState !== newState) {
       if (this.currentState) {
-        this.currentState.exit();
+        this.currentState ? this.currentState.exit() : null
         glob.UpdateLoop.removeListener(this.currentState);
         glob.Graphics.removeListener(this.currentState);
 
@@ -21,7 +21,9 @@ glob.GameState.stateMachine = {
       }
 
       if (newState) {
-        newState.enter();
+        this.bindAll(newState);
+
+        newState.enter ? newState.enter() : null;
         glob.UpdateLoop.addListener(newState);
         glob.Graphics.addListener(newState);
 
@@ -35,6 +37,16 @@ glob.GameState.stateMachine = {
       }
 
       this.currentState = newState;
+    }
+  },
+
+  bindAll: function(newState) {
+    var key = null;
+
+    for (key in newState) {
+      if (typeof newState[key] === "function") {
+        newState[key] = newState[key].bind(this);
+      }
     }
   },
 
