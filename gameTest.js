@@ -28,6 +28,7 @@ game.TestGame = new glob.NewGlobType([
         this.bmp = glob.Resources.loadImage("res/tile.png");
         this.snd = glob.Resources.loadSound("res/sound.mp3");
         this.mus = glob.Resources.loadSound("res/DST-Aircord.mp3");
+        this.fnt = glob.Resources.loadFont("res/AstronBoyWonder.ttf", "Astron");
 
         // How many of the resources have loaded?
         this.nResLoaded = 0;
@@ -38,7 +39,7 @@ game.TestGame = new glob.NewGlobType([
           exit: function() {},
 
           update: function(dt) {
-            this.nResLoaded = glob.Resources.getLoadedCount();
+            self.nResLoaded = glob.Resources.getLoadedCount();
             if (glob.Resources.getLoadProgress() > 1 - glob.math.EPSILON) {
               self.setState(self.playState);
             }
@@ -47,7 +48,7 @@ game.TestGame = new glob.NewGlobType([
           draw: function(ctxt) {
             ctxt.fillStyle = "#000000";
             ctxt.fillRect(0, 0, width, height);
-            glob.Graphics.showMessage(ctxt, "Loaded " + this.nResLoaded + " of 3...", "#ff0000", true);
+            glob.Graphics.showMessage(ctxt, "Loaded " + self.nResLoaded + " of 4...", "#ff0000", true);
           }
         };
 
@@ -68,9 +69,25 @@ game.TestGame = new glob.NewGlobType([
           },
 
           draw: function(ctxt) {
+            var iRow = 0,
+                iCol = 0,
+                modVal = 0;
+
             ctxt.fillStyle = "#000000";
             ctxt.fillRect(0, 0, width, height);
-            ctxt.drawImage(self.bmp, 0, 0);
+
+            // Draw grid.
+            for (iRow=0; iRow<height / self.bmp.height; ++iRow) {
+              modVal = 1 - modVal;
+              for (iCol=0; iCol<width / self.bmp.width; ++iCol) {
+                if (iCol % 2 !== modVal) {
+                  ctxt.drawImage(self.bmp, iCol * self.bmp.width, iRow * self.bmp.height);
+                }
+              }
+            }
+
+            self.fnt.print(ctxt, "Font code by Mike 'Pomax' Kamerman", glob.Graphics.getWidth() / 2, glob.Graphics.getHeight() / 2 - self.bmp.height / 2, "#ffffff", 20, 0.5, 0.5);
+            self.fnt.print(ctxt, "Music: 'Aircord' by DST", glob.Graphics.getWidth() / 2, glob.Graphics.getHeight() / 2 + self.bmp.height / 2, "#ffffff", 20, 0.5, 0.5);
           },
 
           mouseDown: function(x, y) {

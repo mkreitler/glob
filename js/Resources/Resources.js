@@ -52,49 +52,29 @@ glob.ResourceLoader = new glob.NewGlobType(null, {
     return image;
   },
 
-  // loadBitmapFont: function(fontURLs, onLoadedCallback, onErrorCallback, observer) {
-  //   var font = null,
-  //       image = null,
-  //       fontURL = null,
-  //       i = 0;
-
-  //       if (!(fontURLs instanceof Array)) {
-  //         fontURL = fontURLs;
-  //         fontURLs = [];
-  //         fontURLs.push(fontURL);
-  //       }
-
-  //       font = new glob.Resources.BitmapFont();
-
-  //       for (i=0; i<fontURLs.length; ++i) {
-  //         image = glob.Resources.loader.loadImage(fontURLs[i],
-  //                                                function() {
-  //                                                             if (onLoadedCallback) { onLoadedCallback.call(observer, image) }
-  //                                                             font.onLoad(image);
-  //                                                           },
-  //                                                onErrorCallback,
-  //                                                observer);
-  //         font.addImage(image);
-  //       }
-
-  //   return font;
-  // },
-  
-  loadFont: function(fontURL, onLoadedCallback, onErrorCallback, observer) {
+  loadFont: function(fontURL, family, onLoadedCallback, onErrorCallback, observer) {
     glob.Resources.incPendingCount();
 
-    var font = glob.Resources.FontEx.newFromResource(fontURL,
-               function() {
-                 glob.Resources.incLoadedCount(true);
-                 if (onLoadedCallback) { onLoadedCallback.call(observer, font); }
-               },
-               function() {
-                 glob.Resources.incLoadedCount(false);
-                 if (onErrorCallback) { onErrorCallback.call(observer, fontURL); }
-               },
-               observer);    
+    family = family || fontURL;
+
+    var newFont = new Font();
+    var newFontEx = new glob.Resources.FontEx();
     
-    return font;
+    newFont.fontFamily = family;
+    newFont.src = fontURL;
+    newFontEx.setFont(newFont);
+    
+    newFont.onload = function() {
+                      glob.Resources.incLoadedCount(true);
+                      if (onLoadedCallback && observer) { onLoadedCallback.call(observer, font); }
+                    };
+
+    newFont.onerror = function() {
+                      glob.Resources.incLoadedCount(false);
+                      if (onErrorCallback && observer) { onErrorCallback.call(observer, fontURL); }
+                    };
+    
+    return newFontEx;
   },
   
   loadSound: function(soundURL, onLoadedCallback, onErrorCallback, observer, nChannels, repeatDelaySec) {
@@ -158,7 +138,7 @@ glob.Resources = {
   loader: new glob.ResourceLoader(),
 
   getLoadProgress: function() {
-    var completion = this.resourcesRequested > 0 ? this.resourcesRequested / this.resourcesLoaded : 1.0;
+    var completion = this.resourcesRequested > 0 ? this.resourcesLoaded / this.resourcesRequested : 1.0;
 
     if (!this.bResourceLoadSuccessful) {
       completion != -1.0;
@@ -200,7 +180,7 @@ glob.Resources = {
   },
 
   loadFont: function(fontURL, onLoadedCallback, onErrorCallback, observer) {
-    return this.loader.loadFont();
+    return this.loader.loadFont(fontURL, onLoadedCallback, onErrorCallback, observer);
   },
 
   loadSound: function(soundURL, onLoadedCallback, onErrorCallback, observer, nChannels, repeatDelaySec) {

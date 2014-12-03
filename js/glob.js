@@ -12,7 +12,8 @@ glob.assert = function(test, msg) {
 glob.NewGlobType = function(staticModules, modules) {
   var iMod = 0,
       statModArray = glob.util.makeArray(staticModules),
-      modArray = glob.util.makeArray(modules);
+      modArray = glob.util.makeArray(modules),
+      _class = null;
 
   _class = function() {
     this.init.apply(this, arguments);
