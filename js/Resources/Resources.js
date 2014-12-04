@@ -137,6 +137,34 @@ glob.Resources = {
   resourcesRequested: 0,
   loader: new glob.ResourceLoader(),
 
+  EZstartDownloadState: function(stateMachine, nextState) {
+    if (stateMachine && nextState) {
+      // ResourceLoad State -----------------------------------------
+      var nResLoaded = 0;
+
+      stateMachine.setState({
+        enter: function() {},
+        exit: function() {},
+
+        update: function(dt) {
+          nResLoaded = glob.Resources.getLoadedCount();
+          if (glob.Resources.getLoadProgress() > 1 - glob.math.EPSILON) {
+            this.setState(nextState);
+          }
+        },
+
+        draw: function(ctxt) {
+          var width = glob.Graphics.getWidth(),
+              height = glob.Graphics.getHeight();
+
+          ctxt.fillStyle = "#000000";
+          ctxt.fillRect(0, 0, width, height);
+          glob.Graphics.showMessage(ctxt, "Loaded " + nResLoaded + (nResLoaded === 1 ? " resource..." : " resources..."), "#ff0000", true, 0, glob.Graphics.getHeight() / 2);
+        }
+      });
+    }
+  },
+
   getLoadProgress: function() {
     var completion = this.resourcesRequested > 0 ? this.resourcesLoaded / this.resourcesRequested : 1.0;
 

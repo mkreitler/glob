@@ -41,7 +41,22 @@ window.requestAnimFrame = (function() {
           };
 });
 
-glob.GraphicsClass = new glob.NewGlobType(null, [
+glob.GraphicsClass = new glob.NewGlobType(
+null,
+[
+  {
+    BLACK: "#000000",
+    WHITE: "#FFFFFF",
+    LT_GRAY: "#BBBBBB",
+    DK_GRAY: "#444444",
+    RED: "#FF0000",
+    GREEN: "#00FF00",
+    BLUE: "#0000FF",
+    MAGENTA: "#FF00FF",
+    YELLOW: "#FFFF00",
+    CYAN: "#00FFFF",
+    ORANGE: "#FFBB00"
+  },
   new glob.Listeners(),
   {
     gameCanvas: null,
@@ -54,6 +69,7 @@ glob.GraphicsClass = new glob.NewGlobType(null, [
     wantHeight: 0,
     globalScale: 1,
     globalAlpha: 1,
+
 
     init: function(wantWidth, wantHeight) {
 
@@ -229,7 +245,7 @@ glob.GraphicsClass = new glob.NewGlobType(null, [
       targetBuffer.restore();
     },
 
-    clearToColor: function(color, buffer, width, height) {
+    clearTo: function(color, buffer, width, height) {
       var targetBuffer = buffer || this.activeContext;
       var clearWidth = width || this.getWidth();
       var clearHeight = height || this.getHeight();
@@ -285,9 +301,10 @@ glob.GraphicsClass = new glob.NewGlobType(null, [
       }
     },
 
-    showMessage: function(gfx, strMsg, color, bCentered) {
+    showMessage: function(gfx, strMsg, color, bCentered, x, y) {
       var canvas = this.getCanvas(),
-          textX = 10,
+          textX = x || 10,
+          textY = y || 50,
           context = canvas && (gfx === null || typeof gfx === 'undefined') ? canvas.getContext("2d") : gfx;
 
       if (context != null) {
@@ -295,10 +312,10 @@ glob.GraphicsClass = new glob.NewGlobType(null, [
         context.font = "20px Arial";
         if (bCentered) {
           textX = this.getWidth() / 2 - context.measureText(strMsg).width / 2;
-          context.fillText(strMsg, textX, 50);
+          context.fillText(strMsg, textX, textY);
         }
         else {
-          context.fillText(strMsg, textX, 50);
+          context.fillText(strMsg, textX, textY);
         }
       }
       else {

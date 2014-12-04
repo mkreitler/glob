@@ -24,7 +24,11 @@ glob.GameState.stateMachine = {
         this.bindAll(newState);
 
         newState.enter ? newState.enter() : null;
-        glob.UpdateLoop.addListener(newState);
+
+        if (newState.update) {
+          glob.UpdateLoop.addListener(newState);
+        }
+        
         glob.Graphics.addListener(newState);
 
         if (glob.util.isMobile()) {

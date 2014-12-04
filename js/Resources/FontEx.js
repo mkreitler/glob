@@ -114,6 +114,13 @@ null,
   },
   
   measureText: function(text, size) {
-    return this.font ? this.font.measureText(text, size) : null;
+    var result = this.font ? this.font.measureText(text, size) : false;
+
+    if (!result) {
+      result = {bounds: {minx:0, maxx:0, miny: 0, maxy: 0}};
+    }
+
+    return result;
   }
 });
+
