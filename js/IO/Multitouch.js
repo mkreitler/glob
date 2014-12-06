@@ -7,11 +7,18 @@
 //};
 //
 
-glob.Multitouch = new glob.NewGlobType([
-  new glob.Listeners(),
+glob.MultitouchGlob = new glob.NewGlobType(null,
+[
+  glob.Listeners,
   {
-    pointInfo: {clientX:0, clientY:0, srcElement:null},
-    
+    init: function() {
+      this.pointInfo = {clientX:0, clientY:0, srcElement:null};
+
+      window.addEventListener("touchstart", this.touchStart.bind(this), true);
+      window.addEventListener("touchmove", this.touchMove.bind(this), true);
+      window.addEventListener("touchend", this.touchEnd.bind(this), true);
+    },
+
     touchStart: function(e) {
       var i = 0;
 
@@ -20,12 +27,12 @@ glob.Multitouch = new glob.NewGlobType([
         e.stopPropagation();
         
         for (i=0; i<e.touches.length; ++i) {
-          glob.Multitouch.getClientPos(e.touches[i]);
-          // console.log("touchDown " + e.touches[i].identifier + " " + glob.Multitouch.pointInfo.clientX + " " + glob.Multitouch.pointInfo.clientY);
-          glob.Multitouch.callListenersUntilConsumed("touchDown",
+          this.getClientPos(e.touches[i]);
+          // console.log("touchDown " + e.touches[i].identifier + " " + this.pointInfo.clientX + " " + this.pointInfo.clientY);
+          this.callListenersUntilConsumed("touchDown",
                                                     e.touches[i].identifier,
-                                                    glob.Multitouch.pointInfo.clientX,
-                                                    glob.Multitouch.pointInfo.clientY);    
+                                                    this.pointInfo.clientX,
+                                                    this.pointInfo.clientY);    
         }
       }
     },
@@ -38,12 +45,12 @@ glob.Multitouch = new glob.NewGlobType([
         e.stopPropagation();
         
         for (i=0; i<e.changedTouches.length; ++i) {
-          glob.Multitouch.getClientPos(e.changedTouches[i]);
-          // console.log("touchMove " + e.changedTouches[i].identifier + " " + glob.Multitouch.pointInfo.clientX + " " + glob.Multitouch.pointInfo.clientY);
-          glob.Multitouch.callListenersUntilConsumed("touchMove",
+          this.getClientPos(e.changedTouches[i]);
+          // console.log("touchMove " + e.changedTouches[i].identifier + " " + this.pointInfo.clientX + " " + this.pointInfo.clientY);
+          this.callListenersUntilConsumed("touchMove",
                                                     e.changedTouches[i].identifier,
-                                                    glob.Multitouch.pointInfo.clientX,
-                                                    glob.Multitouch.pointInfo.clientY);    
+                                                    this.pointInfo.clientX,
+                                                    this.pointInfo.clientY);    
         }
       }
     },
@@ -70,9 +77,9 @@ glob.Multitouch = new glob.NewGlobType([
       x = Math.round(x / glob.Graphics.globalScale);
       y = Math.round(y / glob.Graphics.globalScale);
       
-      glob.Multitouch.pointInfo.clientX = x;
-      glob.Multitouch.pointInfo.clientY = y;
-      glob.Multitouch.pointInfo.srcElement = document._gameCanvas ? document._gameCanvas : null;
+      this.pointInfo.clientX = x;
+      this.pointInfo.clientY = y;
+      this.pointInfo.srcElement = document._gameCanvas ? document._gameCanvas : null;
     },
     
     touchEnd: function(e) {
@@ -83,26 +90,21 @@ glob.Multitouch = new glob.NewGlobType([
         e.stopPropagation();
         
         for (i=0; i<e.changedTouches.length; ++i) {
-          glob.Multitouch.getClientPos(e.changedTouches[i]);
-          // console.log("touchUp " + e.changedTouches[i].identifier + " " + glob.Multitouch.pointInfo.clientX + " " + glob.Multitouch.pointInfo.clientY);
-          glob.Multitouch.callListenersUntilConsumed("touchUp",
+          this.getClientPos(e.changedTouches[i]);
+          // console.log("touchUp " + e.changedTouches[i].identifier + " " + this.pointInfo.clientX + " " + this.pointInfo.clientY);
+          this.callListenersUntilConsumed("touchUp",
                                                     e.changedTouches[i].identifier,
-                                                    glob.Multitouch.pointInfo.clientX,
-                                                    glob.Multitouch.pointInfo.clientY);    
+                                                    this.pointInfo.clientX,
+                                                    this.pointInfo.clientY);    
         }
       }
     }
   }
-],
-{
-  // Object definitions /////////////////////////////////////////////////////
-});
+]);
 
-window.addEventListener("touchstart", glob.Multitouch.touchStart, true);
-window.addEventListener("touchmove", glob.Multitouch.touchMove, true);
-window.addEventListener("touchend", glob.Multitouch.touchEnd, true);
+glob.Multitouch = new glob.MultitouchGlob();
 
-glob.Multitouch.touchListener = {
+this.touchListener = {
   touchDown: function(id, x, y) { return false; },
   touchMove: function(id, x, y) { return false; },
   touchUp: function(id, x, y) { return false; }

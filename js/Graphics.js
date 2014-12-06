@@ -57,7 +57,7 @@ null,
     CYAN: "#00FFFF",
     ORANGE: "#FFBB00"
   },
-  new glob.Listeners(),
+  glob.Listeners,
   {
     gameCanvas: null,
     activeContext: null,

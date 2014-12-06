@@ -4,35 +4,39 @@
 // 
 // var myObj = {update: function(dt, gameTime) { /* Do stuff here. */ }};
 //
-// glob.UpdateLoop.addListener(myObj);
-// glob.UpdateLoop.start();
+// this.addListener(myObj);
+// this.start();
 //
 // Code adapted from "<a href="http://www.hive76.org/fast-javascript-game-loops" target=_blank>Fast Javascript Game Loops</a>," by Sean MacBeth.
 // [END HELP]
 
-glob.UpdateLoop = new glob.NewGlobType([
-  new glob.Listeners(), {
-// Static Definition
+glob.UpdateLoopGlob = new glob.NewGlobType({
+  // Static Definition
   PRIORITY_INPUT: 1000,
   PRIORITY_PROCESS: 100,
   
   SEC_TO_MS: 1000,
   MS_TO_SEC: 0.001,
   TIME_EPSILON: 10, // 10 ms
+},
+[
+  glob.Listeners, {
   
-  bWantsUpdate: false,
-  timeStep: Math.round(1000 / 60),
-  lastTime: 0,
-  gameTime: 0,
-  elapsedTime: 0,
-  interval: null,
+  init: function() {
+    this.bWantsUpdate = false;
+    this.timeStep = Math.round(1000 / 60);
+    this.lastTime = 0;
+    this.gameTime = 0;
+    this.elapsedTime = 0;
+    this.interval = null;
+  },
   
   setTimeStep: function(newStep) {
-    glob.UpdateLoop.timeStep = newStep;
+    this.timeStep = newStep;
   },
   
   getGameTime: function() {
-    return glob.UpdateLoop.gameTime;
+    return this.gameTime;
   },
   
   update: function() {
@@ -45,47 +49,47 @@ glob.UpdateLoop = new glob.NewGlobType([
         window.requestAnimFrame()(this.update.bind(this));
     }
     
-    glob.UpdateLoop.elapsedTime += (curTime - glob.UpdateLoop.lastTime);
-    glob.UpdateLoop.lastTime = curTime;
+    this.elapsedTime += (curTime - this.lastTime);
+    this.lastTime = curTime;
     
-    dt = glob.UpdateLoop.timeStep;
+    dt = this.timeStep;
     
-    while (glob.UpdateLoop.elapsedTime >= dt) {
+    while (this.elapsedTime >= dt) {
       // TODO: calculate gameTime.
-      glob.UpdateLoop.gameTime += dt;
+      this.gameTime += dt;
     
       // Update. For the sake of performance, we iterate the inherited
       // listener list directly, rather than use callListeners(...)
-      for (i = 0; i < glob.UpdateLoop.listeners.length; ++i) {
-        glob.UpdateLoop.listeners[i].update(dt * 0.001, dt, glob.UpdateLoop.gameTime);
+      for (i = 0; i < this.listeners.length; ++i) {
+        this.listeners[i].update(dt * 0.001, dt, this.gameTime);
       }
       
-      glob.UpdateLoop.elapsedTime -= dt;
+      this.elapsedTime -= dt;
     }
       
     // Compute time to next update, accounting for the amount
     // if time the current update took.
-    updateTime = (new Date).getTime() - glob.UpdateLoop.lastTime;
+    updateTime = (new Date).getTime() - this.lastTime;
   },
   
   start: function(bOutsideTimer) {
-    glob.UpdateLoop.lastTime = (new Date).getTime();
-    glob.UpdateLoop.gameTime = 0;
+    this.lastTime = (new Date).getTime();
+    this.gameTime = 0;
 
     if (!bOutsideTimer) {
-//      glob.UpdateLoop.interval = setInterval(glob.UpdateLoop.update, glob.UpdateLoop.timeStep);
+//      this.interval = setInterval(this.update, this.timeStep);
       bWantsUpdate = true;
       this.update();      
     }
   },
   
   stop: function() {
-    // clearInterval(glob.UpdateLoop.interval);
+    // clearInterval(this.interval);
     bWantsUpdate = false;
   },
-}],
-{
-// No instance definitions -- UpdateLoop is a singleton.
-});
+}]);
+
+glob.UpdateLoop = new glob.UpdateLoopGlob();
 
 glob.UpdateLoop.start();
+

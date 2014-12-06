@@ -77,6 +77,10 @@ null,
   },
 
   print: function(context, text, x, y, color, size, hAlign, vAlign) {
+    this.draw(context, text, x, y, color, size, hAlign, vAlign);
+  },
+
+  draw: function(context, text, x, y, color, size, hAlign, vAlign) {
     var textColor = color || "#00FFFF";
     var vertAlign = "top";
     var textSize = (size || 30) + "px";

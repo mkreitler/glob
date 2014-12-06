@@ -11,27 +11,23 @@
 //
 // myInstance = new glob.Class();
 //
-// glob.KeyInput.addListener(myInstance);</pre>
+// this.addListener(myInstance);</pre>
 
 
-glob.KeyInput = new glob.NewGlobType([
-  new glob.Listeners(), {
-  // Static Definitions ////////////////////////////////////////////////////////////
-  keyState: [],
-  doubleTapInterval: 150,
-  holdInterval: 333,
-  tapInterval: 150,
-  
+glob.KeyInputGlob = new glob.NewGlobType(null,
+[
+  glob.Listeners, {
+  // Instance Definitions /////////////////////////////////////////////////////
   setDoubleTapInterval: function(newInterval) {
-    glob.KeyInput.doubleTapInterval = newInterval;
+    this.doubleTapInterval = newInterval;
   },
   
   setHoldInterval: function(newInterval) {
-    glob.KeyInput.holdInterval = newInterval;
+    this.holdInterval = newInterval;
   },
   
   setTapInterval: function(newInterval) {
-    glob.KeyInput.tapInterval = newInterval;
+    this.tapInterval = newInterval;
   },
   
   init: function() {
@@ -39,9 +35,14 @@ glob.KeyInput = new glob.NewGlobType([
     var keyCode;
     var maxCode = -1;
     
+    this.keyState = [];
+    this.doubleTapInterval = 150;
+    this.holdInterval = 333;
+    this.tapInterval = 150;
+
     // Get the largest recognized keyCode.
-    for (key in glob.KeyInput.KEYS) {
-      keyCode = glob.KeyInput.KEYS[key];
+    for (key in this.KEYS) {
+      keyCode = this.KEYS[key];
       if (keyCode > maxCode) {
         maxCode = keyCode;
       }
@@ -50,7 +51,7 @@ glob.KeyInput = new glob.NewGlobType([
     // Add keyState trackers for all codes up
     // to the largets (many will be unused).
     while (maxCode >= 0) {
-      glob.KeyInput.keyState.push({pressed:false, pressCount: 0, pressTime:-1});
+      this.keyState.push({pressed:false, pressCount: 0, pressTime:-1});
       maxCode -= 1;
     }
   },
@@ -62,21 +63,21 @@ glob.KeyInput = new glob.NewGlobType([
     var i;
     var curKeyState;
     
-    for (i=0; i<glob.KeyInput.keyState.length; ++i) {
-      curKeyState = glob.KeyInput.keyState[i];
+    for (i=0; i<this.keyState.length; ++i) {
+      curKeyState = this.keyState[i];
       
       if (curKeyState.pressed && curKeyState.pressTime > 0) {
         // Check for hold.
-        if (gameTime - curKeyState.pressTime > glob.KeyInput.holdInterval) {
+        if (gameTime - curKeyState.pressTime > this.holdInterval) {
             curKeyState.pressTime = 0;
-            glob.KeyInput.keyHold(i);
+            this.keyHold(i);
         }
       }
       else if (curKeyState.pressTime > 0) {
         // Check for tap.
-        if (gameTime - curKeyState.pressTime > glob.KeyInput.tapInterval) {
+        if (gameTime - curKeyState.pressTime > this.tapInterval) {
           curKeyState.pressTime = 0;
-          glob.KeyInput.keyTap(i);
+          this.keyTap(i);
         }
       }
     }
@@ -90,10 +91,10 @@ glob.KeyInput = new glob.NewGlobType([
     var bConsumed = false;
     
     // Update the button state.
-    if (typeof(glob.KeyInput.keyState[keyCode]) !== 'undefined') {
+    if (typeof(this.keyState[keyCode]) !== 'undefined') {
       curTime = glob.UpdateLoop.getGameTime();
       
-      curKeyState = glob.KeyInput.keyState[keyCode];
+      curKeyState = this.keyState[keyCode];
       
       if (!curKeyState.pressed) {
         curKeyState.pressed = true;
@@ -101,10 +102,10 @@ glob.KeyInput = new glob.NewGlobType([
         // Check for double-tap event.
         // Double taps measure time from the first
         // tap.
-        if (curTime - curKeyState.pressTime < glob.KeyInput.doubleTapInterval) {
+        if (curTime - curKeyState.pressTime < this.doubleTapInterval) {
             curKeyState.pressCount = 0;
             curKeyState.pressTime = 0;
-            glob.KeyInput.keyDoubleTap(keyCode);
+            this.keyDoubleTap(keyCode);
         }
         else {
           curKeyState.pressCount = 1;
@@ -113,7 +114,7 @@ glob.KeyInput = new glob.NewGlobType([
       }
     }
     
-    bConsumed = glob.KeyInput.callListenersUntilConsumed("keyPress", keyCode);
+    bConsumed = this.callListenersUntilConsumed("keyPress", keyCode);
     
     if (bConsumed) {
       localEvent.preventDefault();
@@ -129,14 +130,14 @@ glob.KeyInput = new glob.NewGlobType([
     var bConsumed = false;
     
     // Update the button state.
-    if (typeof(glob.KeyInput.keyState[keyCode]) !== 'undefined') {
-      curKeyState = glob.KeyInput.keyState[keyCode];
+    if (typeof(this.keyState[keyCode]) !== 'undefined') {
+      curKeyState = this.keyState[keyCode];
       curKeyState.pressed = false;
       curKeyState.pressTime = curKeyState.pressTime > 0 ? glob.UpdateLoop.getGameTime() : 0;
       curKeyState.pressCount = 0;
     }
     
-    bConsumed = glob.KeyInput.callListenersUntilConsumed("keyRelease", keyCode);
+    bConsumed = this.callListenersUntilConsumed("keyRelease", keyCode);
     
     if (bConsumed) {
       localEvent.preventDefault();
@@ -146,15 +147,15 @@ glob.KeyInput = new glob.NewGlobType([
   },
   
   keyTap: function(keyCode) {
-    return glob.KeyInput.callListenersUntilConsumed("keyTap", keyCode);
+    return this.callListenersUntilConsumed("keyTap", keyCode);
   },
   
   keyHold: function(keyCode) {
-    return glob.KeyInput.callListenersUntilConsumed("keyHold", keyCode);
+    return this.callListenersUntilConsumed("keyHold", keyCode);
   },
   
   keyDoubleTap: function(keyCode) {
-    return glob.KeyInput.callListenersUntilConsumed("keyDoubleTap", keyCode);
+    return this.callListenersUntilConsumed("keyDoubleTap", keyCode);
   },
   
   // Key codes
@@ -208,18 +209,17 @@ glob.KeyInput = new glob.NewGlobType([
   Y: 89,
   Z: 90,
   },
-}],
-{
-  // Object Definitions ////////////////////////////////////////////////////////////
-});
+}]);
 
-document.addEventListener("keydown", glob.KeyInput.keyPress, true);
-document.addEventListener("keyup", glob.KeyInput.keyRelease, true);
+document.addEventListener("keydown", this.keyPress, true);
+document.addEventListener("keyup", this.keyRelease, true);
+
+glob.KeyInput = new glob.KeyInputGlob();
 
 // Support for updates
 glob.UpdateLoop.addListener(glob.KeyInput);
 
-glob.KeyInput.keyListener = {
+this.keyListener = {
   keyPress: function(key) { return false; },
   keyReleas: function(key) { return false; },
   keyHold: function(key) { return false; },
