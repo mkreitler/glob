@@ -57,7 +57,7 @@ glob.UpdateLoop = new glob.NewGlobType([
       // Update. For the sake of performance, we iterate the inherited
       // listener list directly, rather than use callListeners(...)
       for (i = 0; i < glob.UpdateLoop.listeners.length; ++i) {
-        glob.UpdateLoop.listeners[i].update(dt, glob.UpdateLoop.gameTime);
+        glob.UpdateLoop.listeners[i].update(dt * 0.001, dt, glob.UpdateLoop.gameTime);
       }
       
       glob.UpdateLoop.elapsedTime -= dt;

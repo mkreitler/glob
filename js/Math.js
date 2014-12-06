@@ -1,108 +1,108 @@
-glob.math = {};
+glob.Math = {};
 
-glob.math.EPSILON = 0.001;
-glob.math.EPSILON_ANGLE = 0.0001;
-glob.math.resultRect = {x:0, y:0, w:0, h:0};
-glob.math.COS_TABLE = [];
-glob.math.SIN_TABLE = [];
-glob.math.TABLE_SIZE = 2048;
-glob.math.TWO_PI = 2 * Math.PI;
+glob.Math.EPSILON = 0.001;
+glob.Math.EPSILON_ANGLE = 0.0001;
+glob.Math.resultRect = {x:0, y:0, w:0, h:0};
+glob.Math.COS_TABLE = [];
+glob.Math.SIN_TABLE = [];
+glob.Math.TABLE_SIZE = 2048;
+glob.Math.TWO_PI = 2 * Math.PI;
 
 // Lookups --------------------------------------------------------------------
-glob.math.buildTables = function() {
+glob.Math.buildTables = function() {
   var i = 0;
 
-  for (i=0; i<glob.math.TABLE_SIZE; ++i) {
-    glob.math.COS_TABLE.push(Math.cos(2 * Math.PI * i / glob.math.TABLE_SIZE));
-    glob.math.SIN_TABLE.push(Math.sin(2 * Math.PI * i / glob.math.TABLE_SIZE));
+  for (i=0; i<glob.Math.TABLE_SIZE; ++i) {
+    glob.Math.COS_TABLE.push(Math.cos(2 * Math.PI * i / glob.Math.TABLE_SIZE));
+    glob.Math.SIN_TABLE.push(Math.sin(2 * Math.PI * i / glob.Math.TABLE_SIZE));
   }
 };
 
-glob.math.trigTransition = function(param) {
+glob.Math.trigTransition = function(param) {
   param = Math.min(param, 1);
   param = Math.max(0, param);
 
-  return (1 - glob.math.cos(Math.PI * param)) * 0.5;
+  return (1 - glob.Math.cos(Math.PI * param)) * 0.5;
 };
 
-glob.math.cos = function(angle) {
-  var branchCut = Math.floor(angle / glob.math.TWO_PI),
+glob.Math.cos = function(angle) {
+  var branchCut = Math.floor(angle / glob.Math.TWO_PI),
       lowIndex = 0,
       highIndex = 0,
       result = 0;
 
-  angle = angle - branchCut * glob.math.TWO_PI;
+  angle = angle - branchCut * glob.Math.TWO_PI;
 
   // Angle is now in the range [0, 2PI).
   
-  lowIndex = glob.math.TABLE_SIZE * angle / glob.math.TWO_PI;
+  lowIndex = glob.Math.TABLE_SIZE * angle / glob.Math.TWO_PI;
   highIndex = Math.floor(lowIndex);
 
-  if (Math.abs(lowIndex - highIndex) > glob.math.EPSILON ) {
+  if (Math.abs(lowIndex - highIndex) > glob.Math.EPSILON ) {
     // LERP to final result.
-    result = glob.math.COS_TABLE[highIndex] * (1 - (lowIndex - highIndex));
+    result = glob.Math.COS_TABLE[highIndex] * (1 - (lowIndex - highIndex));
     highIndex += 1;
-    result += glob.math.COS_TABLE[highIndex] * (1 - (highIndex - lowIndex));
+    result += glob.Math.COS_TABLE[highIndex] * (1 - (highIndex - lowIndex));
   }
   else {
-    result = glob.math.COS_TABLE[highIndex];
+    result = glob.Math.COS_TABLE[highIndex];
   }
 
   return result;
 };
 
-glob.math.sin = function(angle) {
-  var branchCut = Math.floor(angle / glob.math.TWO_PI),
+glob.Math.sin = function(angle) {
+  var branchCut = Math.floor(angle / glob.Math.TWO_PI),
       lowIndex = 0,
       highIndex = 0,
       result = 0;
 
-  angle = angle - branchCut * glob.math.TWO_PI;
+  angle = angle - branchCut * glob.Math.TWO_PI;
 
   // Angle is now in the range [0, 2PI).
   
-  lowIndex = glob.math.TABLE_SIZE * angle / glob.math.TWO_PI;
+  lowIndex = glob.Math.TABLE_SIZE * angle / glob.Math.TWO_PI;
   highIndex = Math.floor(lowIndex);
 
-  if (Math.abs(lowIndex - highIndex) > glob.math.EPSILON ) {
+  if (Math.abs(lowIndex - highIndex) > glob.Math.EPSILON ) {
     // LERP to final result.
-    result = glob.math.SIN_TABLE[highIndex] * (1 - (lowIndex - highIndex));
+    result = glob.Math.SIN_TABLE[highIndex] * (1 - (lowIndex - highIndex));
     highIndex += 1;
-    result += glob.math.SIN_TABLE[highIndex] * (1 - (highIndex - lowIndex));
+    result += glob.Math.SIN_TABLE[highIndex] * (1 - (highIndex - lowIndex));
   }
   else {
-    result = glob.math.SIN_TABLE[highIndex];
+    result = glob.Math.SIN_TABLE[highIndex];
   }
 
   return result;
 };
 
-glob.math.tan = function(angle) {
-  var sin = glob.math.sin(angle),
-      cos = glob.math.cos(angle),
+glob.Math.tan = function(angle) {
+  var sin = glob.Math.sin(angle),
+      cos = glob.Math.cos(angle),
       result = cos ? sin / cos : undefined;
 
   return result;
 };
 
 // Rectangles ----------------------------------------------------------------
-glob.math.rect2 = function(x, y, w, h) {
+glob.Math.rect2 = function(x, y, w, h) {
   this.x = x;
   this.y = y;
   this.w = w;
   this.h = h;
 };
 
-glob.math.rectContainsPoint = function(r, x, y) {
+glob.Math.rectContainsPoint = function(r, x, y) {
   return (x >= r.x &&
           x <= r.x + r.w &&
           y >= r.y &&
           y <= r.y + r.h);
 },
 
-glob.math.clip = function(r1, r2) {
+glob.Math.clip = function(r1, r2) {
   var rt = null,
-      result = glob.math.resultRect;
+      result = glob.Math.resultRect;
 
   // Ensure that r1.w < r2.w.
   if (r2.w < r1.w) {
@@ -143,31 +143,31 @@ glob.math.clip = function(r1, r2) {
 };
 
 // 2D Vectors ----------------------------------------------------------------
-glob.math.vec2 = function(x, y) {
+glob.Math.vec2 = function(x, y) {
   this.x = x;
   this.y = y;
 };
 
-glob.math.vec2.prototype.distSqFrom = function(vOther) {
+glob.Math.vec2.prototype.distSqFrom = function(vOther) {
   var dx = this.x - vOther.x;
   var dy = this.y - vOther.y;
 
   return dx * dx + dy * dy;
 };
 
-glob.math.vec2.prototype.dotWith = function(vOther) {
+glob.Math.vec2.prototype.dotWith = function(vOther) {
   return this.x * vOther.x + this.y * vOther.y;
 };
 
-glob.math.vec2.prototype.crossWith = function(vOther) {
-  return new glob.math.vec2(this.x * vOther.y - vOther.x * this.y);
+glob.Math.vec2.prototype.crossWith = function(vOther) {
+  return new glob.Math.vec2(this.x * vOther.y - vOther.x * this.y);
 };
 
-glob.math.vec2.prototype.distSq = function() {
+glob.Math.vec2.prototype.distSq = function() {
   return this.x * this.x + this.y * this.y;
 };
 
-glob.math.vec2.prototype.normalize = function() {
+glob.Math.vec2.prototype.normalize = function() {
   var dist = Math.sqrt(this.distSq());
 
   if (dist) {
@@ -176,49 +176,49 @@ glob.math.vec2.prototype.normalize = function() {
   }
 };
 
-glob.math.vec2.prototype.add = function(vOther) {
+glob.Math.vec2.prototype.add = function(vOther) {
   this.x += vOther.x;
   this.y += vOther.y;
 
   return this;
 };
 
-glob.math.vec2.prototype.multiply = function(scale) {
+glob.Math.vec2.prototype.multiply = function(scale) {
   this.x *= scale;
   this.y *= scale;
 
   return this;
 };
 
-glob.math.vec2.prototype.subtract = function(vOther) {
+glob.Math.vec2.prototype.subtract = function(vOther) {
   this.x -= vOther.x;
   this.y -= vOther.y;
 
   return this;
 };
 
-glob.math.vec2.prototype.copy = function(vOther) {
+glob.Math.vec2.prototype.copy = function(vOther) {
   this.x = vOther.x;
   this.y = vOther.y;
 };
 
-glob.math.vec2FromPoints = function(x0, y0, xf, yf) {
-  return new glob.math.vec2(xf - x0, yf - y0);
+glob.Math.vec2FromPoints = function(x0, y0, xf, yf) {
+  return new glob.Math.vec2(xf - x0, yf - y0);
 };
 
-glob.math.vec2Copy = function(vOther) {
-  return new glob.math.vec2(vOther.x, vOther.y);
+glob.Math.vec2Copy = function(vOther) {
+  return new glob.Math.vec2(vOther.x, vOther.y);
 };
 
 // Bezier Helpers -------------------------------------------------------------
-glob.math.bezierComputePoint = function(t, p0, p1, p2, p3) {
+glob.Math.bezierComputePoint = function(t, p0, p1, p2, p3) {
   var u = 1 - t;
   var tt = t * t;
   var uu = u * u;
   var uuu = uu * u;
   var ttt = tt * t;
 
-  p = new glob.math.vec2(p0.x * uuu, p0.y * uuu);
+  p = new glob.Math.vec2(p0.x * uuu, p0.y * uuu);
 
   p.x += p1.x * (3 * uu * t);
   p.y += p1.y * (3 * uu * t);
@@ -232,16 +232,16 @@ glob.math.bezierComputePoint = function(t, p0, p1, p2, p3) {
   return p;
 };
 
-glob.math.bezierGetPointFromCurve = function(controlPoints, segmentIndex, segmentParam) {
+glob.Math.bezierGetPointFromCurve = function(controlPoints, segmentIndex, segmentParam) {
   var p0 = controlPoints[segmentIndex];
   var p1 = controlPoints[segmentIndex + 1];
   var p2 = controlPoints[segmentIndex + 2];
   var p3 = controlPoints[segmentIndex + 3];
 
-  return glob.math.bezierComputePoint(segmentParam, p0, p1, p2, p3);
+  return glob.Math.bezierComputePoint(segmentParam, p0, p1, p2, p3);
 };
 
-glob.math.bezierGeneratePixels = function(controlPoints, pointsPerSegment) {
+glob.Math.bezierGeneratePixels = function(controlPoints, pointsPerSegment) {
   var drawingPoints = [];
   var i = 0;
   var j = 0;
@@ -262,20 +262,20 @@ glob.math.bezierGeneratePixels = function(controlPoints, pointsPerSegment) {
                 //When i != 0, this coincides with the end
                 //point of the previous segment
     {
-      drawingPoints.push(glob.math.bezierComputePoint(0, p0, p1, p2, p3));
+      drawingPoints.push(glob.Math.bezierComputePoint(0, p0, p1, p2, p3));
     }    
 
     for(j=1; j<=pointsPerSegment; j++)
     {
       t = j / pointsPerSegment;
-      drawingPoints.push(glob.math.bezierComputePoint(t, p0, p1, p2, p3));
+      drawingPoints.push(glob.Math.bezierComputePoint(t, p0, p1, p2, p3));
     }
   }
 
   return drawingPoints;
 };
 
-glob.math.bezierInterpolate = function(pointList, scale)
+glob.Math.bezierInterpolate = function(pointList, scale)
 {
     var i = 0;
     var controlPoints = null;
@@ -298,8 +298,8 @@ glob.math.bezierInterpolate = function(pointList, scale)
               p1 = pointList[i];
               p2 = pointList[i + 1];                
    
-              tangent = new glob.math.vec2(p2.x - p1.x, p2.y - p1.y);
-              q1 = glob.math.vec2Copy(p1);
+              tangent = new glob.Math.vec2(p2.x - p1.x, p2.y - p1.y);
+              q1 = glob.Math.vec2Copy(p1);
               q1.add(tangent.multiply(scale));
 
               controlPoints.push(p1);
@@ -310,8 +310,8 @@ glob.math.bezierInterpolate = function(pointList, scale)
               p0 = pointList[i - 1];
               p1 = pointList[i];
 
-              tangent = new glob.math.vec2(p1.x - p0.x, p1.y - p0.y);
-              q0 = glob.math.vec2Copy(p1);
+              tangent = new glob.Math.vec2(p1.x - p0.x, p1.y - p0.y);
+              q0 = glob.Math.vec2Copy(p1);
               q0.subtract(tangent.multiply(scale));
    
               controlPoints.push(q0);
@@ -323,19 +323,19 @@ glob.math.bezierInterpolate = function(pointList, scale)
               p1 = pointList[i];
               p2 = pointList[i + 1];
 
-              tangent = new glob.math.vec2(p2.x - p0.x, p2.y - p0.y);
+              tangent = new glob.Math.vec2(p2.x - p0.x, p2.y - p0.y);
               tangent.normalize();
               tangent.multiply(scale);
 
-              dp = new glob.math.vec2(p1.x - p0.x, p1.y - p0.y);
+              dp = new glob.Math.vec2(p1.x - p0.x, p1.y - p0.y);
               mag = Math.sqrt(dp.distSq());
 
-              q0 = new glob.math.vec2(p1.x - tangent.x * mag, p1.y - tangent.y * mag);
+              q0 = new glob.Math.vec2(p1.x - tangent.x * mag, p1.y - tangent.y * mag);
 
-              dp = new glob.math.vec2(p2.x - p1.x, p2.y - p1.y);
+              dp = new glob.Math.vec2(p2.x - p1.x, p2.y - p1.y);
               mag = Math.sqrt(dp.distSq());
 
-              q1 = new glob.math.vec2(p1.x + tangent.x * mag, p1.y + tangent.y * mag);
+              q1 = new glob.Math.vec2(p1.x + tangent.x * mag, p1.y + tangent.y * mag);
    
               controlPoints.push(q0);
               controlPoints.push(p1);
@@ -348,18 +348,18 @@ glob.math.bezierInterpolate = function(pointList, scale)
 }
 
 // Cubic Splines --------------------------------------------------------------
-glob.math.cubic = function(a, b, c, d, u) {
+glob.Math.cubic = function(a, b, c, d, u) {
    this.a = a;
    this.b = b;
    this.c = c;
    this.d = d;
 };
 
-glob.math.cubic.prototype.getValueAt = function(u){
+glob.Math.cubic.prototype.getValueAt = function(u){
   return (((this.d * u) + this.c) * u + this.b) * u + this.a;
 };
 
-glob.math.calcNaturalCubic = function(values, component, cubics) {
+glob.Math.calcNaturalCubic = function(values, component, cubics) {
    var num = values.length - 1;
    var gamma = []; // new float[num+1];
    var delta = []; // new float[num+1];
@@ -412,7 +412,7 @@ glob.math.calcNaturalCubic = function(values, component, cubics) {
       p0 = values[i][component];
       p1 = values[i+1][component];
 
-      cubics.push(new glob.math.cubic(
+      cubics.push(new glob.Math.cubic(
                      p0, 
                      D[i], 
                      3*(p1 - p0) - 2*D[i] - D[i+1],
@@ -422,7 +422,7 @@ glob.math.calcNaturalCubic = function(values, component, cubics) {
    }
 };
 
-glob.math.Spline2D = function() {
+glob.Math.Spline2D = function() {
    this.points = [];
    this.xCubics = [];
    this.yCubics = [];
@@ -442,8 +442,8 @@ glob.math.Spline2D = function() {
    };
    
    this.calcSpline = function() {
-      glob.math.calcNaturalCubic(this.points, "x", this.xCubics);
-      glob.math.calcNaturalCubic(this.points, "y", this.yCubics);
+      glob.Math.calcNaturalCubic(this.points, "x", this.xCubics);
+      glob.Math.calcNaturalCubic(this.points, "y", this.yCubics);
    };
    
    this.getPoint = function(position) {
@@ -457,7 +457,7 @@ glob.math.Spline2D = function() {
    };
 };
 
-glob.math.Spline3D = function() {
+glob.Math.Spline3D = function() {
    this.points = [];
    this.xCubics = [];
    this.yCubics = [];
@@ -479,9 +479,9 @@ glob.math.Spline3D = function() {
    };
    
    this.calcSpline = function() {
-      glob.math.calcNaturalCubic(this.points, "x", this.xCubics);
-      glob.math.calcNaturalCubic(this.points, "y", this.yCubics);
-      glob.math.calcNaturalCubic(this.points, "z", this.zCubics);
+      glob.Math.calcNaturalCubic(this.points, "x", this.xCubics);
+      glob.Math.calcNaturalCubic(this.points, "y", this.yCubics);
+      glob.Math.calcNaturalCubic(this.points, "z", this.zCubics);
    };
    
    this.getPoint = function(position) {
@@ -496,4 +496,4 @@ glob.math.Spline3D = function() {
    };
 };
 
-glob.math.buildTables();
+glob.Math.buildTables();

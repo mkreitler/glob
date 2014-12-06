@@ -148,7 +148,7 @@ glob.Resources = {
 
         update: function(dt) {
           nResLoaded = glob.Resources.getLoadedCount();
-          if (glob.Resources.getLoadProgress() > 1 - glob.math.EPSILON) {
+          if (glob.Resources.getLoadProgress() > 1 - glob.Math.EPSILON) {
             this.setState(nextState);
           }
         },

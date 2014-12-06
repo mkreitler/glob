@@ -11,8 +11,8 @@ glob.assert = function(test, msg) {
 // Base class constructor //////////////////////////////////////////////////////
 glob.NewGlobType = function(staticModules, modules) {
   var iMod = 0,
-      statModArray = glob.util.makeArray(staticModules),
-      modArray = glob.util.makeArray(modules),
+      statModArray = glob.Util.makeArray(staticModules),
+      modArray = glob.Util.makeArray(modules),
       _class = null;
 
   _class = function() {
@@ -79,6 +79,8 @@ glob.NewGlobType = function(staticModules, modules) {
 glob.NewGlobType.extendStatic = function(module) {
   var key = null;
 
+  glob.assert(typeof module !== "undefined", "Can't include undefined static module!");
+
   if (module) {
     for (key in module) {
       if (this[key]) {
@@ -97,10 +99,11 @@ glob.NewGlobType.extend = function(module, proto) {
   proto = proto || this.prototype;
 
   glob.assert(proto, "Cannot extend null prototype.");
+  glob.assert(typeof module !== "undefined", "Can't include undefined module!");
 
-  if (proto && module) {
-    proto.modArray.push(module);
+  proto.modArray.push(module);
 
+  if (module) {
     for (key in module) {
       if (proto[key]) {
         upperKey = key.toUpperCase();

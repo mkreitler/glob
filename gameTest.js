@@ -25,6 +25,10 @@ game.TestGame = new glob.NewGlobType([
         this.snd = glob.Resources.loadSound("res/sound.mp3");
         this.mus = glob.Resources.loadSound("res/DST-Aircord.mp3");
         this.fnt = glob.Resources.loadFont("res/AstronBoyWonder.ttf", "Astron");
+        this.ss  = glob.Resources.loadImage("res/sprite.png");
+
+        this.spriteSheet = null;
+        this.sprite = null;
 
         // How many of the resources have loaded?
         this.nResLoaded = 0;
@@ -40,7 +44,7 @@ game.TestGame = new glob.NewGlobType([
 
         update: function(dt) {
           this.nResLoaded = glob.Resources.getLoadedCount();
-          if (glob.Resources.getLoadProgress() > 1 - glob.math.EPSILON) {
+          if (glob.Resources.getLoadProgress() > 1 - glob.Math.EPSILON) {
             this.setState(this.playState);
           }
         },
@@ -60,11 +64,20 @@ game.TestGame = new glob.NewGlobType([
         enter: function() {
           // Start the background music loop.
           glob.Sound.loop(this.mus);
+
+          // Create the moving sprite.
+          if (!this.spriteSheet) {
+            this.spriteSheet = new glob.SpriteSheetGlob(this.ss, 1, 1);
+            this.sprite = new glob.SpriteGlob(this.spriteSheet, 0, 0.5, 0.5, glob.Graphics.getWidth() / 2, glob.Graphics.getHeight() / 2, 50, 50);
+          }
+
+          glob.UpdateLoop.addListener(this.sprite);
         },
 
         exit: function() {
           // Stop the background music loop.
           glob.Sound.stop(this.mus);
+          glob.UpdateLoop.removeListener(this.sprite);
         },
 
         update: function(dt) {
@@ -93,6 +106,8 @@ game.TestGame = new glob.NewGlobType([
 
           this.fnt.print(ctxt, "Font code by Mike 'Pomax' Kamerman", glob.Graphics.getWidth() / 2, glob.Graphics.getHeight() / 2 - this.bmp.height / 2, "#ffffff", 20, 0.5, 0.5);
           this.fnt.print(ctxt, "Music: 'Aircord' by DST", glob.Graphics.getWidth() / 2, glob.Graphics.getHeight() / 2 + this.bmp.height / 2, "#ffffff", 20, 0.5, 0.5);
+
+          this.sprite.draw(ctxt);
         },
 
         mouseDown: function(x, y) {

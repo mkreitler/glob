@@ -91,8 +91,8 @@ null,
 
     resizeCanvas: function() {
       if (document.body) {
-        var pageWidth = glob.util.getPageWidth(),
-            pageHeight = glob.util.getPageHeight(),
+        var pageWidth = glob.Util.getPageWidth(),
+            pageHeight = glob.Util.getPageHeight(),
             bAppendCanvas = !this.gameCanvas,
             wantAspectRatio = this.wantWidth / Math.max(1, this.wantHeight),
             aspectRatio = pageWidth / Math.max(1, pageHeight),
@@ -113,7 +113,7 @@ null,
         }
 
         if (!this.gameCanvas) {
-          this.gameCanvas = document.createElement(glob.util.isMobile() ? 'screencanvas' : 'canvas');
+          this.gameCanvas = document.createElement(glob.Util.isMobile() ? 'screencanvas' : 'canvas');
 //          this.gameCanvas = document.createElement("canvas");
         }
 
@@ -149,7 +149,7 @@ null,
       if (this.activeContext !== this.screenContext) {
         this.screenContext.save();
 
-        if (Math.abs(this.globalScale - 1.0) > glob.math.EPSILON) {
+        if (Math.abs(this.globalScale - 1.0) > glob.Math.EPSILON) {
           this.screenContext.scale(this.globalScale, this.globalScale);
         }
 
@@ -210,7 +210,7 @@ null,
     },
 
     destroyBuffer: function(buffer) {
-      glob.util.erase(this.buffers, buffer);
+      glob.Util.erase(this.buffers, buffer);
     },
 
     setActiveBuffer: function(buffer) {

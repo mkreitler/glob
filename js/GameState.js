@@ -11,7 +11,7 @@ glob.GameState.stateMachine = {
         glob.UpdateLoop.removeListener(this.currentState);
         glob.Graphics.removeListener(this.currentState);
 
-        if (glob.util.isMobile()) {
+        if (glob.Util.isMobile()) {
           glob.Multitouch.removeListener(this.currentState);
         }
         else {
@@ -31,7 +31,7 @@ glob.GameState.stateMachine = {
         
         glob.Graphics.addListener(newState);
 
-        if (glob.util.isMobile()) {
+        if (glob.Util.isMobile()) {
           glob.Multitouch.addListener(newState);
         }
         else {

@@ -35,7 +35,7 @@ glob.Listeners = function() {
   };
   
   this.removeListener = function(theListener) {
-    glob.util.fastErase(this.listeners, theListener);
+    glob.Util.fastErase(this.listeners, theListener);
   };
  
   this.removeAllListeners = function() {

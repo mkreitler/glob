@@ -1,8 +1,8 @@
 
 // Utilities ///////////////////////////////////////////////////////////////////
-glob.util = {};
+glob.Util = {};
 
-glob.util.makeArray = function(item) {
+glob.Util.makeArray = function(item) {
   var arrayOut = item;
 
   if (item instanceof Array === false) {
@@ -13,7 +13,7 @@ glob.util.makeArray = function(item) {
   return arrayOut;
 };
 
-glob.util.erase = function(array, item) {
+glob.Util.erase = function(array, item) {
   var iRemove = -1;
   var i = 0;
   
@@ -30,7 +30,7 @@ glob.util.erase = function(array, item) {
   }
 };
 
-glob.util.fastErase = function(array, item) {
+glob.Util.fastErase = function(array, item) {
   var iRemove = array ? array.indexOf(item) : -1;
 
   if (iRemove >= 0) {
@@ -39,14 +39,14 @@ glob.util.fastErase = function(array, item) {
   }
 };
 
-glob.util.getPageWidth = function() {
+glob.Util.getPageWidth = function() {
   return Math.max(document.documentElement["clientWidth"], document.body["scrollWidth"], document.documentElement["scrollWidth"], document.body["offsetWidth"], document.documentElement["offsetWidth"]) || window.innerWidth;
 };
 
-glob.util.getPageHeight = function() {
+glob.Util.getPageHeight = function() {
   return Math.max(document.documentElement["clientHeight"], document.body["scrollHeight"], document.documentElement["scrollHeight"], document.body["offsetHeight"], document.documentElement["offsetHeight"]) | window.innerHeight;
 };
 
-glob.util.isMobile = function() {
+glob.Util.isMobile = function() {
   return navigator && navigator.isCocoonJS;
 };
