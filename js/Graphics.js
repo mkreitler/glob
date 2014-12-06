@@ -28,18 +28,36 @@ glob._gfx = {
   height: 0
 };
 
-// From Paul Irish's article on 'requestAnimFrame':
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-//
-// Shim layer with setTimeout fallback
-window.requestAnimFrame = (function() {
-  return  window.requestAnimationFrame       ||
-          window.webkitRequestAnimationFrame ||
-          window.mozRequestAnimationFrame    ||
-          function( callback ) {
-            window.setTimeout(callback, 1000 / 60);
-          };
-});
+// http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
+ 
+// requestAnimationFrame polyfill by Erik Möller
+// fixes from Paul Irish and Tino Zijdel
+ 
+(function() {
+    var lastTime = 0;
+    var vendors = ['ms', 'moz', 'webkit', 'o'];
+    for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+        window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+        window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame']
+                                   || window[vendors[x]+'CancelRequestAnimationFrame'];
+    }
+ 
+    if (!window.requestAnimationFrame)
+        window.requestAnimationFrame = function(callback, element) {
+            var currTime = new Date().getTime();
+            var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+            var id = window.setTimeout(function() { callback(currTime + timeToCall); },
+              timeToCall);
+            lastTime = currTime + timeToCall;
+            return id;
+        };
+ 
+    if (!window.cancelAnimationFrame)
+        window.cancelAnimationFrame = function(id) {
+            clearTimeout(id);
+        };
+}());
 
 glob.GraphicsClass = new glob.NewGlobType(
 null,
@@ -48,6 +66,7 @@ null,
     BLACK: "#000000",
     WHITE: "#FFFFFF",
     LT_GRAY: "#BBBBBB",
+    GRAY: "#777777",
     DK_GRAY: "#444444",
     RED: "#FF0000",
     GREEN: "#00FF00",
@@ -69,7 +88,8 @@ null,
     wantHeight: 0,
     globalScale: 1,
     globalAlpha: 1,
-
+    screenOffset: {x:0, y:0},
+    screenClearColor: "#000000",
 
     init: function(wantWidth, wantHeight) {
 
@@ -87,6 +107,19 @@ null,
       if (this.activeContext) {
         this.activeContext.globalAlpha = newAlpha;
       }
+    },
+
+    getGlobalAlpha: function() {
+      return this.activeContext ? this.activeContext.globalAlpha : this.screenContext.globalAlpha;
+    },
+
+    setScreenOffset: function(x, y) {
+      this.screenOffset.x = x;
+      this.screenOffset.y = y;
+    },
+
+    setScreenClearColor: function(color) {
+      this.screenClearColor = color;
     },
 
     resizeCanvas: function() {
@@ -141,7 +174,7 @@ null,
       var i;  // Dummy text node used to force WebKit browsers to refresh the canvas.
       
       if (this.bWantsToRender) {
-        window.requestAnimFrame()(this.render.bind(this));
+        requestAnimationFrame(this.render.bind(this));
       }
 
       this.callListeners("draw", this.activeContext);
@@ -153,7 +186,12 @@ null,
           this.screenContext.scale(this.globalScale, this.globalScale);
         }
 
-        this.screenContext.drawImage(this.activeContext.canvas, 0, 0);
+        if (this.screenOffset.x !== 0 || this.screenOffset.y !== 0) {
+          this.screenContext.fillStyle = this.screenClearColor;
+          this.screenContext.fillRect(0, 0, this.getWidth(), this.getHeight());
+        }
+
+        this.screenContext.drawImage(this.activeContext.canvas, this.screenOffset.x, this.screenOffset.y);
         this.screenContext.restore();
       }
 
@@ -230,6 +268,8 @@ null,
     },
 
     copyFrom: function(otherBuffer, left, top) {
+      left = left || 0;
+      top = top || 0;
       this.activeContext.drawImage(otherBuffer, left, top);
     },
 

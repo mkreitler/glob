@@ -7,7 +7,7 @@ glob.GameState.stateMachine = {
   setState: function(newState) {
     if (this.currentState !== newState) {
       if (this.currentState) {
-        this.currentState ? this.currentState.exit() : null
+        this.currentState.exit ? this.currentState.exit() : null
         glob.UpdateLoop.removeListener(this.currentState);
         glob.Graphics.removeListener(this.currentState);
 

@@ -46,14 +46,14 @@ glob.UpdateLoopGlob = new glob.NewGlobType({
     var updateTime;
 
     if (bWantsUpdate) {
-        window.requestAnimFrame()(this.update.bind(this));
+        window.requestAnimationFrame(this.update.bind(this));
     }
     
     this.elapsedTime += (curTime - this.lastTime);
     this.lastTime = curTime;
     
     dt = this.timeStep;
-    
+
     while (this.elapsedTime >= dt) {
       // TODO: calculate gameTime.
       this.gameTime += dt;

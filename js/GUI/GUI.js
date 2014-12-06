@@ -57,6 +57,14 @@ glob.GUI.WidgetModule = {
 		this.bVisible = false;
 	},
 
+	onMouseDown: function() {
+		// Override for custom functionality.	
+	},
+
+	onMouseUp: function() {
+		// Override for custom functionality.
+	},
+
 	mouseDown: function(x, y) {
 		var bHandled = false;
 
@@ -68,6 +76,7 @@ glob.GUI.WidgetModule = {
 				glob.Sound.play(this.onMouseDownSound);
 				this.mouseDownTime = Date.now();
 			}
+			this.onMouseDown();
 			bHandled = true;
 		}
 
@@ -86,6 +95,7 @@ glob.GUI.WidgetModule = {
 						glob.Sound.play(this.onMouseUpSound);
 					}
 				}
+				this.onMouseUp();
 				this.onClickedCallback(this.data, this, x, y);
 			}
 

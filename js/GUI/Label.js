@@ -17,8 +17,9 @@ glob.GUI.Label = glob.NewGlobType({
 			//   font: ,
 			//   fontSize:,
 			//   text:,
-			//	 color:,
+			//	 activeColor:,
 			//	 inactiveColor:,
+			//   selectedColor:,
 			//   onClickedCallback: ,
 			//   data:,
 			//   onMouseDownSound:,
@@ -37,9 +38,10 @@ glob.GUI.Label = glob.NewGlobType({
 			this.fontSize = args.fontSize;
 			this.text = args.text;
 
-			this.color = args.color || glob.Graphics.WHITE;
-			this.activeColor = this.color;
+			this.activeColor = args.activeColor || glob.Graphics.WHITE;
+			this.color = this.activeColor;
 			this.inactiveColor = args.inactiveColor || glob.Graphics.DK_GRAY;
+			this.selectedColor = args.selectedColor || this.color;
 
 			this.hAlign = args.hAlign || 0.5;
 			this.vAlign = args.vAlign || 0.5;
@@ -56,10 +58,20 @@ glob.GUI.Label = glob.NewGlobType({
 
 			glob.MouseInput.addListener(this);
 			glob.Multitouch.addListener(this);
-		},
+
+			args.x = args.x + args.w * this.hAlign;
+			args.y = args.y + args.h * this.vAlign;		},
 
 		draw: function(ctxt) {
 			this.font.draw(ctxt, this.text, this.globalX, this.globalY, this.color, this.fontSize, 0, 0);
+		},
+
+		onMouseDown: function() {
+			this.color = this.selectedColor;
+		},
+
+		onMouseUp: function() {
+			this.color = this.activeColor;
 		},
 
 		activate: function() {
