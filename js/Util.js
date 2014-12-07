@@ -30,6 +30,23 @@ glob.Util.erase = function(array, item) {
   }
 };
 
+glob.Util.compressArray = function(array) {
+  var iOuter = 0,
+      iInner = 0;
+
+  for (iOuter=0; iOuter<array.length; ++iOuter) {
+    if (!array[iOuter]) {
+      for (iInner=iOuter+1; iInner<array.length; ++iInner) {
+        array[iInner - 1] = array[iInner];
+      }
+
+      array.length -= 1;
+    }
+  }
+
+  return array.length;
+},
+
 glob.Util.fastErase = function(array, item) {
   var iRemove = array ? array.indexOf(item) : -1;
 

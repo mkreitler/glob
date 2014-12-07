@@ -17,7 +17,17 @@ glob.GUI = {
 };
 
 glob.GUI.WidgetModule = {
-	// Args: parent, x, y, w, h, onClickedCallback, data, onMouseDownSound, onMouseUpSound
+	// Args: parent,
+	// 			 x,
+	//			 y,
+	// 			 w,
+	// 			 h,
+	//			 onClickedCallback,
+	// 			 data,
+	// 			 onMouseDownSound,
+	// 			 onMouseUpSound,
+	//			 mouseDelegate
+
 	initWidget: function(args) {
 		glob.assert(args, "Invalid args passed to widget!");
 
@@ -31,12 +41,61 @@ glob.GUI.WidgetModule = {
 		this.localY = args.y || 0;
 		this.globalX = this.parent ? this.localX + parent.globalX : this.localX;
 		this.globalY = this.parent ? this.localY + parent.globalY : this.localY;
+		this.mouseDelegate = args.mouseDelegate || null;
 		this.mouseDownTime = 0;
 
 		this.bounds = new glob.Math.rect2(this.globalX, this.globalY, args.w || 0, args.h || 0);
+
 		glob.MouseInput.addListener(this);
+		this.children = [];
 
 		glob.GUI.addWidget(this);
+	},
+
+	addChild: function(child, bRecomputeGlobalPosition) {
+		this.children.push(child);
+		child.setParent(this, bRecomputeGlobalPosition);
+	},
+
+	removeChild: function(child) {
+		glob.Util.erase(this.children, child);
+		child.parent = null;
+	},
+
+	setParent: function(parent, bInLocalSpace) {
+		var dx = 0,
+				dy = 0;
+
+		if (parent) {
+			if (bInLocalSpace) {
+				// Assume this widget is already in local space and
+				// update the global coordinates accordingly.
+				this.globalX = parent.globalX + this.localX;
+				this.globalY = parent.globalY + this.localY;
+				this.bounds.x += parent.globalX;
+				this.bounds.y += parent.globalY;
+			}
+			else {
+				// Assume this widget is in global space and compute
+				// the correct local coordinates.
+				this.localX = this.globalX - parent.globalX;
+				this.localY = this.globalY - parent.globalY;
+			}
+		}
+	},
+
+	draw: function(ctxt) {
+		var i = 0;
+
+		// First, draw self.
+		this.drawSelf(ctxt);
+
+		// Next, draw children.
+		for (i=0; i<this.children.length; ++i) {
+			if (this.children[i] && this.children[i].drawSelf) {
+				this.children[i].drawSelf(ctxt);
+			}
+		}
 	},
 
 	activate: function() {
@@ -57,12 +116,30 @@ glob.GUI.WidgetModule = {
 		this.bVisible = false;
 	},
 
-	onMouseDown: function() {
+	onMouseDown: function(x, y) {
 		// Override for custom functionality.	
 	},
 
-	onMouseUp: function() {
+	onMouseUp: function(x, y) {
 		// Override for custom functionality.
+	},
+
+	onMouseDrag: function(x, y) {
+
+	},
+
+	mouseDrag: function(x, y) {
+		var bHandled = false;
+
+		if (glob.GUI.focusWidget === this) {
+			this.onMouseDrag(x, y);
+		}
+
+		if (this.mouseDelegate && this.mouseDelegate.onMouseDrag) {
+			bHandled = this.mouseDelegate.onMouseDrag(x, y, this.data);
+		}
+
+		return this.bHandled;
 	},
 
 	mouseDown: function(x, y) {
@@ -72,12 +149,18 @@ glob.GUI.WidgetModule = {
 
 		if (this.onClickedCallback && glob.Math.rectContainsPoint(this.bounds, x, y)) {
 			glob.GUI.focusWidget = this;
+
 			if (this.onMouseDownSound) {
 				glob.Sound.play(this.onMouseDownSound);
 				this.mouseDownTime = Date.now();
 			}
-			this.onMouseDown();
+			this.onMouseDown(x, y);
 			bHandled = true;
+		}
+
+		if (this.mouseDelegate && this.mouseDelegate.onMouseDown) {
+			glob.GUI.focusWidget = this;
+			bHandled = bHandled || this.mouseDelegate.onMouseDown(x, y, this.data);
 		}
 
 		return bHandled;
@@ -95,8 +178,12 @@ glob.GUI.WidgetModule = {
 						glob.Sound.play(this.onMouseUpSound);
 					}
 				}
-				this.onMouseUp();
+				this.onMouseUp(x, y);
 				this.onClickedCallback(this.data, this, x, y);
+			}
+
+			if (this.mouseDelegate && this.mouseDelegate.onMouseUp) {
+				bHandled = bHandled || this.mouseDelegate.onMouseUp(x, y, this.data);
 			}
 
 			glob.GUI.focusWidget = null;

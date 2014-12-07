@@ -8,8 +8,6 @@ glob.GUI.Label = glob.NewGlobType({
 	glob.GUI.WidgetModule,
 
 	{
-		// initWidget: function(parent, x, y, w, h, onClickedCallback, data, onMouseDownSound, onMouseUpSound) {
-	
 		// Args:
 			// { parent: ,
 			//   x: ,
@@ -24,6 +22,7 @@ glob.GUI.Label = glob.NewGlobType({
 			//   data:,
 			//   onMouseDownSound:,
 			//   onMouseUpSound:,
+			//	 mouseDelegate:,
 			//   hAlign:,
 			//   vAlign:
 			//  };
@@ -62,8 +61,15 @@ glob.GUI.Label = glob.NewGlobType({
 			args.x = args.x + args.w * this.hAlign;
 			args.y = args.y + args.h * this.vAlign;		},
 
-		draw: function(ctxt) {
+		drawSelf: function(ctxt) {
 			this.font.draw(ctxt, this.text, this.globalX, this.globalY, this.color, this.fontSize, 0, 0);
+
+			// Debug: draw bounds
+			// ctxt.strokeStyle = "#ff0000";
+			// ctxt.beginPath();
+			// ctxt.rect(this.bounds.x, this.bounds.y, this.bounds.w, this.bounds.h);
+			// ctxt.closePath();
+			// ctxt.stroke();
 		},
 
 		onMouseDown: function() {
