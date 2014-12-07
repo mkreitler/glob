@@ -12,6 +12,8 @@
 //
 // this.addListener(myInstance);</pre>
 
+var debugID = 0;
+
 glob.MouseInputGlob = new glob.NewGlobType(null,
 [
   glob.Listeners, {
@@ -33,6 +35,8 @@ glob.MouseInputGlob = new glob.NewGlobType(null,
     window.addEventListener("mouseout", this.mouseOut.bind(this), true);
     window.addEventListener("mousedown", this.mouseDown.bind(this), true);
     window.addEventListener("mouseup", this.mouseUp.bind(this), true);
+
+    this.ID = debugID++;
   },
   
   getClientX: function(e) {
@@ -91,7 +95,10 @@ glob.MouseInputGlob = new glob.NewGlobType(null,
     
     // console.log("Mouse drag at", x, y);
 
-    this.callListenersUntilConsumed("mouseDrag", x, y);    
+    // HACK: fix this!
+    if (true || this.mouseState.bDown) {
+      this.callListenersUntilConsumed("mouseDrag", x, y);    
+    }
     
     (e ? e : event).preventDefault();
   },
@@ -109,7 +116,7 @@ glob.MouseInputGlob = new glob.NewGlobType(null,
     
     this.mouseState.bDown = false;
     this.mouseState.pressCount = 0;
-    window.removeEventListener("mousemove", this.mouseDrag, true);
+    window.removeEventListener("mousemove", this.mouseDrag.bind(this), true);
   },
   
   mouseHold: function() {

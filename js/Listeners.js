@@ -28,7 +28,10 @@ glob.Listeners = {
   },
   
   addListener: function(theListener, fnCompare) {
-    if (theListener) {
+    if (this.listeners.indexOf(theListener) >= 0) {
+      glob.assert(false, "Added listener multiple times!");
+    }
+    else if (theListener) {
       this.listeners.push(theListener);
       if (fnCompare) {
         this.sortListeners(fnCompare);
@@ -37,7 +40,7 @@ glob.Listeners = {
   },
   
   removeListener: function(theListener) {
-    glob.Util.fastErase(this.listeners, theListener);
+    glob.Util.erase(this.listeners, theListener);
   },
  
   removeAllListeners: function() {

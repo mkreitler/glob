@@ -12,7 +12,24 @@ glob.GUI = {
 	},
 
 	removeWidget: function(widget) {
-		glob.Utils.fastErase(this.widgets, widget);
+		glob.Utils.erase(this.widgets, widget);
+	},
+
+	flushAll: function() {
+		var widget = null;
+
+		while (this.widgets.length) {
+			widget = this.widgets.pop();
+			glob.Graphics.removeListener(widget);
+			glob.UpdateLoop.removeListener(widget);
+			if (glob.Util.isMobile()) {
+				glob.TouchInput.removeListener(widget);
+			}
+			else {
+				glob.KeyInput.removeListener(widget);
+				glob.MouseInput.removeListener(widget);
+			}
+		}		
 	} 
 };
 
@@ -47,6 +64,9 @@ glob.GUI.WidgetModule = {
 		this.bounds = new glob.Math.rect2(this.globalX, this.globalY, args.w || 0, args.h || 0);
 
 		glob.MouseInput.addListener(this);
+		glob.Multitouch.addListener(this);
+		glob.KeyInput.addListener(this);
+
 		this.children = [];
 
 		glob.GUI.addWidget(this);
@@ -98,6 +118,15 @@ glob.GUI.WidgetModule = {
 		}
 	},
 
+	drawBounds: function(ctxt, color, lineWidth) {
+		ctxt.beginPath();
+		ctxt.strokeStyle = color || glob.Graphics.RED;
+		ctxt.lineWidth = lineWidth || 2;
+		ctxt.rect(this.bounds.x, this.bounds.y, this.bounds.w, this.bounds.h);
+		ctxt.closePath();
+		ctxt.stroke();
+	},
+
 	activate: function() {
 		this.bActive = true;
 		glob.MouseInput.addListener(this);
@@ -131,15 +160,17 @@ glob.GUI.WidgetModule = {
 	mouseDrag: function(x, y) {
 		var bHandled = false;
 
-		if (glob.GUI.focusWidget === this) {
-			this.onMouseDrag(x, y);
+		if (this.bVisible && this.bActive) {
+			if (glob.GUI.focusWidget === this) {
+				this.onMouseDrag(x, y);
+
+				if (this.mouseDelegate && this.mouseDelegate.onMouseDrag) {
+					bHandled = this.mouseDelegate.onMouseDrag(x, y, this.data);
+				}
+			}
 		}
 
-		if (this.mouseDelegate && this.mouseDelegate.onMouseDrag) {
-			bHandled = this.mouseDelegate.onMouseDrag(x, y, this.data);
-		}
-
-		return this.bHandled;
+		return bHandled;
 	},
 
 	mouseDown: function(x, y) {
@@ -147,20 +178,23 @@ glob.GUI.WidgetModule = {
 
 		glob.GUI.focusWidget = null;
 
-		if (this.onClickedCallback && glob.Math.rectContainsPoint(this.bounds, x, y)) {
-			glob.GUI.focusWidget = this;
-
-			if (this.onMouseDownSound) {
-				glob.Sound.play(this.onMouseDownSound);
-				this.mouseDownTime = Date.now();
-			}
+		if (this.bVisible && this.bActive && glob.Math.rectContainsPoint(this.bounds, x, y)) {
 			this.onMouseDown(x, y);
-			bHandled = true;
-		}
 
-		if (this.mouseDelegate && this.mouseDelegate.onMouseDown) {
-			glob.GUI.focusWidget = this;
-			bHandled = bHandled || this.mouseDelegate.onMouseDown(x, y, this.data);
+			if (this.onClickedCallback) {
+				glob.GUI.focusWidget = this;
+
+				if (this.onMouseDownSound) {
+					glob.Sound.play(this.onMouseDownSound);
+					this.mouseDownTime = Date.now();
+				}
+				bHandled = true;
+			}
+
+			if (this.mouseDelegate && this.mouseDelegate.onMouseDown) {
+				glob.GUI.focusWidget = this;
+				bHandled = bHandled || this.mouseDelegate.onMouseDown(x, y, this.data);
+			}
 		}
 
 		return bHandled;
@@ -172,18 +206,22 @@ glob.GUI.WidgetModule = {
 		if (glob.GUI.focusWidget === this) {
 			bHandled = true;
 
-			if (this.onClickedCallback && glob.Math.rectContainsPoint(this.bounds, x, y)) {
+			if (glob.GUI.focusWidget != null && this === glob.GUI.focusWidget) {
+				this.onMouseUp(x, y);
+
 				if (this.onMouseUpSound) {
 					if (Date.now() - this.mouseDownTime > glob.GUI.MIN_BUTTON_SND_DELAY) {
 						glob.Sound.play(this.onMouseUpSound);
 					}
 				}
-				this.onMouseUp(x, y);
-				this.onClickedCallback(this.data, this, x, y);
-			}
 
-			if (this.mouseDelegate && this.mouseDelegate.onMouseUp) {
-				bHandled = bHandled || this.mouseDelegate.onMouseUp(x, y, this.data);
+				if (this.onClickedCallback) {
+					this.onClickedCallback(this.data, this, x, y);
+				}
+		
+				if (this.mouseDelegate && this.mouseDelegate.onMouseUp) {
+					bHandled = bHandled || this.mouseDelegate.onMouseUp(x, y, this.data);
+				}
 			}
 
 			glob.GUI.focusWidget = null;

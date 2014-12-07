@@ -55,9 +55,6 @@ glob.GUI.Label = glob.NewGlobType({
 
 			this.initWidget(args);
 
-			glob.MouseInput.addListener(this);
-			glob.Multitouch.addListener(this);
-
 			args.x = args.x + args.w * this.hAlign;
 			args.y = args.y + args.h * this.vAlign;		},
 
@@ -105,6 +102,18 @@ glob.GUI.Label = glob.NewGlobType({
 			this.bounds.h = h;
 			this.bounds.x = this.bounds.x - this.bounds.w * this.hAlign;
 			this.bounds.y = this.bounds.y - this.bounds.h * this.vAlign;
+
+			this.globalX = this.bounds.x;
+			this.globalY = this.bounds.y;
+
+			if (this.parent) {
+				this.localX = this.globalX - this.parent.globalX;
+				this.localY = this.globalY - this.parent.globalY;
+			}
+			else {
+				this.localX = this.globalX;
+				this.localY = this.globalY;
+			}
 		},
 
 		setText: function(newText) {
