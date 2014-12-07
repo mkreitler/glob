@@ -19,6 +19,10 @@ glob.SpriteSheetGlob = new glob.NewGlobType({
     return this.spriteHeight;
   },
 
+  getCellCount: function() {
+    return this.rows * this.cols;
+  },
+
   drawRegion: function(gfx, x, y, frameIndex, alignX, alignY) {
     frameIndex = frameIndex || 0;
 

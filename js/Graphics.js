@@ -132,14 +132,18 @@ null,
             width = this.wantWidth,
             height = this.wantHeight;
 
-        if (aspectRatio < wantAspectRatio) {
+        if (!glob.Util.isMobile()) {
+          // Don't rescale on desktop computers.
+          this.globalScale = 1.0;
+        }
+        else if (aspectRatio < wantAspectRatio) {
           // The actual screen is narrower than the desired display.
           // In this case, we'll crop the height and scale to the
           // actual width.
           this.globalScale = pageWidth / this.wantWidth;
         }
         else {
-          // The actual screen is wider (or exactly equal to) the
+          // The actual screen is wider (or exactly equal to) the 
           // desired display. In this case we'll crop the width and
           // scale to the actual height.
           this.globalScale = pageHeight / this.wantHeight;
