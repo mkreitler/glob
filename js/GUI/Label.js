@@ -69,12 +69,19 @@ glob.GUI.Label = glob.NewGlobType({
 			// ctxt.stroke();
 		},
 
+		setPos: function(x, y) {
+			// TODO: implement this with proper attention to AlignX and AlignY.
+			glob.assert(false, "Not yet implemented!");
+		},
+
 		onMouseDown: function() {
 			this.color = this.selectedColor;
+			return true;
 		},
 
 		onMouseUp: function() {
 			this.color = this.activeColor;
+			return true;
 		},
 
 		activate: function() {
@@ -98,8 +105,8 @@ glob.GUI.Label = glob.NewGlobType({
 				w = textSize.bounds.maxx - textSize.bounds.minx,
 				h = textSize.bounds.maxy - textSize.bounds.miny;
 
-			this.bounds.w = w;
-			this.bounds.h = h;
+			this.bounds.w = w || this.bounds.w;	// In case we eliminated all text.
+			this.bounds.h = h || this.bounds.h; // In case we eliminated all text.
 			this.bounds.x = this.bounds.x - this.bounds.w * this.hAlign;
 			this.bounds.y = this.bounds.y - this.bounds.h * this.vAlign;
 

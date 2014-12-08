@@ -96,7 +96,7 @@ glob.MouseInputGlob = new glob.NewGlobType(null,
     // console.log("Mouse drag at", x, y);
 
     // HACK: fix this!
-    if (true || this.mouseState.bDown) {
+    if (this.mouseState.bDown) {
       this.callListenersUntilConsumed("mouseDrag", x, y);    
     }
     

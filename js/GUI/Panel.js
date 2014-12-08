@@ -51,10 +51,13 @@ glob.GUI.Panel = new glob.NewGlobType([
       this.globalYstart = this.globalY;
 
       this.bDragging = false;
+
+      return true;
     },
 
     onMouseUp: function(x, y) {
       this.bDragging = false;
+      return true;
     },
 
     onMouseDrag: function(x, y) {
@@ -80,6 +83,8 @@ glob.GUI.Panel = new glob.NewGlobType([
         this.bounds.x = this.globalX;
         this.bounds.y = this.globalY;
       }
+
+      return this.bDraggable;
     },
 
     drawSelf: function(ctxt) {

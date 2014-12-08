@@ -140,7 +140,8 @@ glob.Resources = {
   EZstartDownloadState: function(stateMachine, nextState) {
     if (stateMachine && nextState) {
       // ResourceLoad State -----------------------------------------
-      var nResLoaded = 0;
+      var nResLoaded = 0,
+          extraTime = 3; // HACK! Must be a better way to ensure the font has loaded completely.
 
       stateMachine.setState({
         enter: function() {},
@@ -149,7 +150,12 @@ glob.Resources = {
         update: function(dt) {
           nResLoaded = glob.Resources.getLoadedCount();
           if (glob.Resources.getLoadProgress() > 1 - glob.Math.EPSILON) {
-            this.setState(nextState);
+            if (extraTime - dt < 0) {
+              this.setState(nextState);
+            }
+            else {
+              extraTime = extraTime - dt;
+            }
           }
         },
 
@@ -159,7 +165,12 @@ glob.Resources = {
 
           ctxt.fillStyle = "#000000";
           ctxt.fillRect(0, 0, width, height);
-          glob.Graphics.showMessage(ctxt, "Loaded " + nResLoaded + (nResLoaded === 1 ? " resource..." : " resources..."), "#ff0000", true, 0, glob.Graphics.getHeight() / 2);
+          if (extraTime >= 1.5) {
+            glob.Graphics.showMessage(ctxt, "Loaded " + nResLoaded + (nResLoaded === 1 ? " resource..." : " resources..."), "#ff0000", true, 0, glob.Graphics.getHeight() / 2);
+          }
+          else {
+            glob.Graphics.showMessage(ctxt, "Preparing resources...", "#ffff00", true, 0, glob.Graphics.getHeight() / 2);
+          }
         }
       });
     }

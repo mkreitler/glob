@@ -20,15 +20,7 @@ glob.GUI = {
 
 		while (this.widgets.length) {
 			widget = this.widgets.pop();
-			glob.Graphics.removeListener(widget);
-			glob.UpdateLoop.removeListener(widget);
-			if (glob.Util.isMobile()) {
-				glob.TouchInput.removeListener(widget);
-			}
-			else {
-				glob.KeyInput.removeListener(widget);
-				glob.MouseInput.removeListener(widget);
-			}
+			widget.destroy();
 		}		
 	} 
 };
@@ -62,6 +54,9 @@ glob.GUI.WidgetModule = {
 		this.mouseDownTime = 0;
 
 		this.bounds = new glob.Math.rect2(this.globalX, this.globalY, args.w || 0, args.h || 0);
+		this.bWantsDrawBounds = false;
+		this.boundsColor = null;
+		this.boundsLineWidth = null;
 
 		glob.MouseInput.addListener(this);
 		glob.Multitouch.addListener(this);
@@ -107,15 +102,31 @@ glob.GUI.WidgetModule = {
 	draw: function(ctxt) {
 		var i = 0;
 
-		// First, draw self.
-		this.drawSelf(ctxt);
+		if (this.bVisible) {
+			// First, draw self.
+			this.drawSelf(ctxt);
 
-		// Next, draw children.
-		for (i=0; i<this.children.length; ++i) {
-			if (this.children[i] && this.children[i].drawSelf) {
-				this.children[i].drawSelf(ctxt);
+			// Next, draw children.
+			for (i=0; i<this.children.length; ++i) {
+				if (this.children[i] && this.children[i].drawSelf) {
+					this.children[i].drawSelf(ctxt);
+				}
+			}
+
+			if (this.bWantsDrawBounds) {
+				this.drawBounds(ctxt, this.boundsColor, this.boundsLineWidth);
 			}
 		}
+	},
+
+	showBounds: function(color, lineWidth) {
+		this.bWantsDrawBounds = true;
+		this.boundsColor = color;
+		this.boundsLineWidth = lineWidth;
+	},
+
+	hideBounds: function() {
+		this.bWantsDrawBounds = false;
 	},
 
 	drawBounds: function(ctxt, color, lineWidth) {
@@ -125,6 +136,81 @@ glob.GUI.WidgetModule = {
 		ctxt.rect(this.bounds.x, this.bounds.y, this.bounds.w, this.bounds.h);
 		ctxt.closePath();
 		ctxt.stroke();
+	},
+
+	isTouchingWidget: function(otherWidget) {
+		var bTouching = false;
+
+		if (otherWidget && this.bIsVisible && this.bIsActive &&
+				otherWidget.isVisible() && otherWidget.isActive()) {
+			bTouching = glob.Math.clip(this.bounds, otherWidget.getBounds()) !== null;
+		}
+
+		return bTouching;
+	},
+
+	destroy: function() {
+		glob.Graphics.removeListener(this);
+		glob.UpdateLoop.removeListener(this);
+
+		if (glob.Util.isMobile()) {
+			glob.TouchInput.removeListener(this);
+			glob.Multitouch.removeListenr(this);
+		}
+		else {
+			glob.KeyInput.removeListener(this);
+			glob.MouseInput.removeListener(this);
+		}
+	},
+
+	setPos: function(newX, newY) {
+		var i=0,
+				childBounds = null,
+				dx = newX - this.globalX,
+				dy = newY - this.globalY;
+
+		this.globalX = newX;
+		this.globalY = newY;
+
+		if (this.parent) {
+			this.localX = this.globalX - this.parent.globalX;
+			this.localY = this.globalY - this.parent.globalY;
+		}
+		else {
+			this.localX = this.globalX;
+			this.localY = this.globalY;
+		}
+
+		this.bounds.x = newX;
+		this.bounds.y = newY;
+
+		for(i=0; i<this.children.length; ++i) {
+			childBounds = this.children[i].getBoundsRef();
+			childBounds.x += dx;
+			childBounds.y += dy;
+			this.children[i].globalX += dx;
+			this.children[i].globalY += dy;
+		}
+	},
+
+	updatePos: function(parentX, parentY) {
+		this.globalX = parentX + this.localX;
+		this.globalY = parentY + this.localY;
+
+		this.bounds.x = this.globalX;
+		this.bounds.y = this.globalY;
+	},
+
+	getBoundsRef: function() {
+		return this.bounds;
+	},
+
+	isVisible: function() {
+		return this.bVisible;
+	},
+
+	isActive: function() {
+		return this.bActive;
 	},
 
 	activate: function() {
@@ -147,14 +233,16 @@ glob.GUI.WidgetModule = {
 
 	onMouseDown: function(x, y) {
 		// Override for custom functionality.	
+		return false;
 	},
 
 	onMouseUp: function(x, y) {
 		// Override for custom functionality.
+		return false;
 	},
 
 	onMouseDrag: function(x, y) {
-
+		return false;
 	},
 
 	mouseDrag: function(x, y) {
@@ -162,10 +250,15 @@ glob.GUI.WidgetModule = {
 
 		if (this.bVisible && this.bActive) {
 			if (glob.GUI.focusWidget === this) {
-				this.onMouseDrag(x, y);
-
 				if (this.mouseDelegate && this.mouseDelegate.onMouseDrag) {
 					bHandled = this.mouseDelegate.onMouseDrag(x, y, this.data);
+
+					if (!bHandled) {
+						bHandled = this.onMouseDrag(x, y);
+					}
+				}
+				else {
+					bHandled = this.onMouseDrag(x, y);
 				}
 			}
 		}
@@ -179,10 +272,7 @@ glob.GUI.WidgetModule = {
 		glob.GUI.focusWidget = null;
 
 		if (this.bVisible && this.bActive && glob.Math.rectContainsPoint(this.bounds, x, y)) {
-			this.onMouseDown(x, y);
-
 			if (this.onClickedCallback) {
-				glob.GUI.focusWidget = this;
 
 				if (this.onMouseDownSound) {
 					glob.Sound.play(this.onMouseDownSound);
@@ -194,6 +284,17 @@ glob.GUI.WidgetModule = {
 			if (this.mouseDelegate && this.mouseDelegate.onMouseDown) {
 				glob.GUI.focusWidget = this;
 				bHandled = bHandled || this.mouseDelegate.onMouseDown(x, y, this.data);
+
+				if (!bHandled) {
+					bHandled = this.onMouseDown(x, y);
+				}
+			}
+			else {
+				bHandled = this.onMouseDown(x, y);
+			}
+
+			if (bHandled) {
+				glob.GUI.focusWidget = this;
 			}
 		}
 
@@ -204,11 +305,7 @@ glob.GUI.WidgetModule = {
 		var bHandled = false;
 
 		if (glob.GUI.focusWidget === this) {
-			bHandled = true;
-
 			if (glob.GUI.focusWidget != null && this === glob.GUI.focusWidget) {
-				this.onMouseUp(x, y);
-
 				if (this.onMouseUpSound) {
 					if (Date.now() - this.mouseDownTime > glob.GUI.MIN_BUTTON_SND_DELAY) {
 						glob.Sound.play(this.onMouseUpSound);
@@ -221,9 +318,17 @@ glob.GUI.WidgetModule = {
 		
 				if (this.mouseDelegate && this.mouseDelegate.onMouseUp) {
 					bHandled = bHandled || this.mouseDelegate.onMouseUp(x, y, this.data);
+
+					if (!bHandled) {
+						bHandled = this.onMouseUp(x, y);
+					}
+				}
+				else {
+					bHandled = this.onMouseUp(x, y);
 				}
 			}
 
+			bHandled = true;
 			glob.GUI.focusWidget = null;
 		}
 

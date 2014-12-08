@@ -31,18 +31,24 @@ glob.Util.erase = function(array, item) {
 };
 
 glob.Util.compressArray = function(array) {
-  var iOuter = 0,
-      iInner = 0;
+  var iForward = 0,
+      iBack = -1;
 
-  for (iOuter=0; iOuter<array.length; ++iOuter) {
-    if (!array[iOuter]) {
-      for (iInner=iOuter+1; iInner<array.length; ++iInner) {
-        array[iInner - 1] = array[iInner];
+  for (iForward=0; iForward<array.length; ++iForward) {
+    if (array[iForward]) {
+      // Found an object. Move it back until it hits
+      // another object.
+      for (iBack=iForward; iBack>0 && !array[iBack-1]; --iBack) {
+        // Loop backward.
       }
 
-      array.length -= 1;
+      if (iBack != iForward) {
+        array[iBack] = array[iForward];
+      }
     }
   }
+
+  array.length = iBack + 1;
 
   return array.length;
 },
