@@ -20,7 +20,7 @@ glob.GUI = {
 
 		while (this.widgets.length) {
 			widget = this.widgets.pop();
-			widget.destroy();
+			widget.unregister();
 		}		
 	} 
 };
@@ -40,12 +40,30 @@ glob.GUI.WidgetModule = {
 	initWidget: function(args) {
 		glob.assert(args, "Invalid args passed to widget!");
 
+		this.bIsWidget = true;
 		this.bActive = true;
 		this.bVisible = true;
 		this.bMouseDown = false;
 		this.data = args.data || null;
 		this.onClickedCallback = args.onClickedCallback || null;
 		this.parent = args.parent || null;
+
+		// Parent might be a non-widget. In that case, we let the parent
+		// manage input, update, and render forwarding.
+		if (this.parent) {
+			if (this.parent.bIsWidget) {
+				this.parent.addChild(this);
+			}
+			else {
+				// Non-widget parent, so we clear the parent field at this point.
+				this.parent = null;
+			}
+		}
+		else {
+			this.listenForInput();
+			this.listenForUpdates();
+		}
+
 		this.localX = args.x || 0;
 		this.localY = args.y || 0;
 		this.globalX = this.parent ? this.localX + parent.globalX : this.localX;
@@ -58,13 +76,41 @@ glob.GUI.WidgetModule = {
 		this.boundsColor = null;
 		this.boundsLineWidth = null;
 
-		glob.MouseInput.addListener(this);
-		glob.Multitouch.addListener(this);
-		glob.KeyInput.addListener(this);
-
 		this.children = [];
 
 		glob.GUI.addWidget(this);
+	},
+
+	listenForUpdates: function() {
+		glob.Graphics.addListener(this);
+		glob.UpdateLoop.addListener(this);
+	},
+
+	unlistenForUpdates: function() {
+		glob.Graphics.removeListener(this);
+		glob.UpdateLoop.removeListener(this);
+	},
+
+	listenForInput: function() {
+		if (glob.Util.isMobile()) {
+			glob.TouchInput.addListener(this);
+			glob.Multitouch.addListenr(this);
+		}
+		else {
+			glob.KeyInput.addListener(this);
+			glob.MouseInput.addListener(this);
+		}
+	},
+
+	unlistenForInput: function() {
+		if (glob.Util.isMobile()) {
+			glob.TouchInput.removeListener(this);
+			glob.Multitouch.removeListenr(this);
+		}
+		else {
+			glob.KeyInput.removeListener(this);
+			glob.MouseInput.removeListener(this);
+		}
 	},
 
 	addChild: function(child, bRecomputeGlobalPosition) {
@@ -81,6 +127,9 @@ glob.GUI.WidgetModule = {
 		var dx = 0,
 				dy = 0;
 
+		this.unlistenForInput();
+		this.unlistenForUpdates();
+
 		if (parent) {
 			if (bInLocalSpace) {
 				// Assume this widget is already in local space and
@@ -96,6 +145,18 @@ glob.GUI.WidgetModule = {
 				this.localX = this.globalX - parent.globalX;
 				this.localY = this.globalY - parent.globalY;
 			}
+		}
+	},
+
+	update: function(dt) {
+		this.updateChildren(dt);
+	},
+
+	updateChildren:function(dt) {
+		var iChild = 0;
+
+		for (iChild=0; iChild<this.children.length; ++iChild) {
+			this.children[iChild].update(dt);
 		}
 	},
 
@@ -149,18 +210,9 @@ glob.GUI.WidgetModule = {
 		return bTouching;
 	},
 
-	destroy: function() {
-		glob.Graphics.removeListener(this);
-		glob.UpdateLoop.removeListener(this);
-
-		if (glob.Util.isMobile()) {
-			glob.TouchInput.removeListener(this);
-			glob.Multitouch.removeListenr(this);
-		}
-		else {
-			glob.KeyInput.removeListener(this);
-			glob.MouseInput.removeListener(this);
-		}
+unregister: function() {
+		unlistenForInput();
+		unlistenForUpdates();
 	},
 
 	setPos: function(newX, newY) {
@@ -231,6 +283,10 @@ glob.GUI.WidgetModule = {
 		this.bVisible = false;
 	},
 
+	containsPoint: function(x, y) {
+		return Math.rectContainsPoint(this.bounds, x, y);
+	},
+
 	onMouseDown: function(x, y) {
 		// Override for custom functionality.	
 		return false;
@@ -267,34 +323,46 @@ glob.GUI.WidgetModule = {
 	},
 
 	mouseDown: function(x, y) {
-		var bHandled = false;
+		var bHandled = false,
+				iChild = 0,
+				child = null;
 
 		glob.GUI.focusWidget = null;
 
 		if (this.bVisible && this.bActive && glob.Math.rectContainsPoint(this.bounds, x, y)) {
-			if (this.onClickedCallback) {
+			for (iChild=0; !bHandled && iChild<this.children.length; ++iChild) {
+				child = this.children[iChild];
 
-				if (this.onMouseDownSound) {
-					glob.Sound.play(this.onMouseDownSound);
-					this.mouseDownTime = Date.now();
+				if (child.bVisible && child.bActive && child.containsPoint(x, y)) {
+					bHandled = child.mouseDown(x, y);
 				}
-				bHandled = true;
 			}
 
-			if (this.mouseDelegate && this.mouseDelegate.onMouseDown) {
-				glob.GUI.focusWidget = this;
-				bHandled = bHandled || this.mouseDelegate.onMouseDown(x, y, this.data);
+			if (!bHandled) {
+				if (this.onClickedCallback) {
 
-				if (!bHandled) {
+					if (this.onMouseDownSound) {
+						glob.Sound.play(this.onMouseDownSound);
+						this.mouseDownTime = Date.now();
+					}
+					bHandled = true;
+				}
+
+				if (this.mouseDelegate && this.mouseDelegate.onMouseDown) {
+					glob.GUI.focusWidget = this;
+					bHandled = bHandled || this.mouseDelegate.onMouseDown(x, y, this.data);
+
+					if (!bHandled) {
+						bHandled = this.onMouseDown(x, y);
+					}
+				}
+				else {
 					bHandled = this.onMouseDown(x, y);
 				}
-			}
-			else {
-				bHandled = this.onMouseDown(x, y);
-			}
 
-			if (bHandled) {
-				glob.GUI.focusWidget = this;
+				if (bHandled) {
+					glob.GUI.focusWidget = this;
+				}
 			}
 		}
 

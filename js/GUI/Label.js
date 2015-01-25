@@ -75,12 +75,16 @@ glob.GUI.Label = glob.NewGlobType({
 		},
 
 		onMouseDown: function() {
-			this.color = this.selectedColor;
+			if (this.onClickedCallback) {
+				this.color = this.selectedColor;
+			}
 			return true;
 		},
 
 		onMouseUp: function() {
-			this.color = this.activeColor;
+			if (this.onClickedCallback) {
+				this.color = this.activeColor;
+			}
 			return true;
 		},
 
