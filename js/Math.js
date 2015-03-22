@@ -93,6 +93,20 @@ glob.Math.rect2 = function(x, y, w, h) {
   this.h = h;
 };
 
+glob.Math.rect2.prototype.copyFrom = function(r) {
+  this.x = r.x;
+  this.y = r.y;
+  this.w = r.w;
+  this.h = r.h;
+};
+
+glob.Math.rect2.prototype.copyTo = function(r) {
+  r.x = this.x;
+  r.y = this.y;
+  r.w = this.w;
+  r.h = this.h;
+};
+
 glob.Math.rectContainsPoint = function(r, x, y) {
   return (x >= r.x &&
           x <= r.x + r.w &&

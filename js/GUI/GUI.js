@@ -211,8 +211,8 @@ glob.GUI.WidgetModule = {
 	},
 
 unregister: function() {
-		unlistenForInput();
-		unlistenForUpdates();
+		this.unlistenForInput();
+		this.unlistenForUpdates();
 	},
 
 	setPos: function(newX, newY) {

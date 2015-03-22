@@ -1,4 +1,3 @@
-
 // Utilities ///////////////////////////////////////////////////////////////////
 glob.Util = {};
 
@@ -29,6 +28,24 @@ glob.Util.erase = function(array, item) {
     }
   }
 };
+
+glob.Util.subArray = function(array, iStart, iEnd) {
+  var subArray = [],
+      i = 0;
+
+  if (array) {
+    iEnd = typeof(iEnd) === 'undefined' ? array.length - 1 : iEnd;
+
+    iStart = Math.max(0, iStart);
+    iEnd = Math.min(iEnd, array.length - 1);
+
+    for (i=iStart; i<=iEnd; ++i) {
+      subArray.push(array[i]);
+    }
+  }
+
+  return subArray;
+},
 
 glob.Util.compressArray = function(array) {
   var iForward = 0,
